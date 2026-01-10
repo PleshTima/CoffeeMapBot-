@@ -225,10 +225,12 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     )
     return ConversationHandler.END
 
-
 def main() -> None:
-    """Запуск бота"""
-    token = "8492359863:AAFToN2vEfqdUdaOU7P8LsBVSVfQt-5Antk"
+    """Start the bot"""
+    import os
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    if not token:
+        raise ValueError("❌ TELEGRAM_BOT_TOKEN не установлен!")
 
     application = Application.builder().token(token).build()
 
