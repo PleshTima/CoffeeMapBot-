@@ -1,16 +1,31 @@
 import { useEffect, useState } from "react";
-import Onboarding from "./components/Onboarding";
-import Afisha from "./components/Afisha";
-import Communities from "./components/Communities";
+import Icon from "./components/Icon";
+import SmartImg from "./components/SmartImg";
+import Discover from "./components/Discover";
+import Events from "./components/Events";
+import Matches from "./components/Matches";
+import Messages from "./components/Messages";
+import ChatThread from "./components/ChatThread";
 import Profile from "./components/Profile";
-import { INITIAL_USER, LEVELS } from "./data";
+import { ME, PEOPLE } from "./data";
 
-const STORAGE_KEY = "uni-one-state";
+const STORAGE_KEY = "uni-one-v2";
+
+// Стартовые пары (взаимные лайки) — чтобы экран «Пары» не был пустым.
+const SEED_MATCHES = PEOPLE.filter((p) => p.likesYou).map((p) => ({
+  id: p.id,
+  name: p.name,
+  age: p.age,
+  faculty: p.faculty,
+  photo: p.photo,
+  isNew: false,
+}));
 
 const TABS = [
-  { id: "afisha", label: "Афиша", icon: "📅" },
-  { id: "communities", label: "Сообщества", icon: "🤝" },
-  { id: "profile", label: "Профиль", icon: "👤" },
+  { id: "discover", label: "Главная", icon: "home" },
+  { id: "events", label: "Мероприятия", icon: "calendar" },
+  { id: "matches", label: "Пары", icon: "heart" },
+  { id: "messages", label: "Сообщения", icon: "chat" },
 ];
 
 export default function App() {
@@ -19,138 +34,115 @@ export default function App() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) return JSON.parse(saved);
     } catch {
-      /* ignore corrupted storage */
+      /* ignore */
     }
     return {
-      onboarded: false,
-      user: INITIAL_USER,
-      registered: [],
-      joined: [],
+      going: [],
+      added: [],
+      matches: SEED_MATCHES,
+      stats: ME.stats,
     };
   });
 
-  const [tab, setTab] = useState("afisha");
+  const [tab, setTab] = useState("discover");
+  const [chat, setChat] = useState(null);
+  const [matchPopup, setMatchPopup] = useState(null);
   const [toast, setToast] = useState(null);
 
-  // Сохраняем прогресс между перезагрузками (прототип без бэкенда).
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state]);
 
   const showToast = (msg) => {
     setToast(msg);
-    setTimeout(() => setToast(null), 2200);
+    setTimeout(() => setToast(null), 2000);
   };
 
-  // Начисление XP с авто-апгрейдом уровня и выдачей ачивок.
-  const award = (user, xpDelta, badgeId) => {
-    let xp = Math.max(0, user.xp + xpDelta);
-    let level = user.level;
-    while (level < LEVELS.length && xp >= LEVELS[level]) level++;
-    const badges = user.badges.map((b) =>
-      b.id === badgeId ? { ...b, earned: true } : b
-    );
-    return { ...user, xp, level, badges };
+  // Решение по свайпу
+  const onDecision = (dir, person) => {
+    if (dir !== "like") return;
+    if (person.likesYou) {
+      setState((s) => ({
+        ...s,
+        matches: [
+          { id: person.id, name: person.name, age: person.age, faculty: person.faculty, photo: person.photo, isNew: true },
+          ...s.matches.filter((m) => m.id !== person.id),
+        ],
+        stats: { ...s.stats, matches: s.stats.matches + 1 },
+      }));
+      setMatchPopup(person);
+    } else {
+      showToast("❤️ Лайк отправлен");
+    }
   };
 
-  const finishOnboarding = (interests) => {
+  const toggleEvent = (id) =>
     setState((s) => ({
       ...s,
-      onboarded: true,
-      user: { ...s.user, interests },
+      going: s.going.includes(id)
+        ? s.going.filter((x) => x !== id)
+        : [...s.going, id],
     }));
-  };
 
-  const toggleRegister = (eventId) => {
-    setState((s) => {
-      const has = s.registered.includes(eventId);
-      const registered = has
-        ? s.registered.filter((id) => id !== eventId)
-        : [...s.registered, eventId];
-      let user = s.user;
-      if (!has) {
-        user = award(user, 30, "b_first_event");
-        if (registered.length >= 3) user = award(user, 0, "b_streak");
-        showToast("🎟️ Запись подтверждена! +30 XP");
-      }
-      return { ...s, registered, user };
-    });
-  };
+  const addFriend = (id) =>
+    setState((s) =>
+      s.added.includes(id)
+        ? s
+        : { ...s, added: [...s.added, id], stats: { ...s.stats, friends: s.stats.friends + 1 } }
+    );
 
-  const toggleJoin = (communityId) => {
-    setState((s) => {
-      const has = s.joined.includes(communityId);
-      const joined = has
-        ? s.joined.filter((id) => id !== communityId)
-        : [...s.joined, communityId];
-      let user = s.user;
-      if (!has) {
-        user = award(user, 20, "b_community");
-        showToast("🤝 Добро пожаловать в сообщество! +20 XP");
-      }
-      return { ...s, joined, user };
-    });
-  };
-
-  const resetDemo = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    setState({
-      onboarded: false,
-      user: INITIAL_USER,
-      registered: [],
-      joined: [],
-    });
-    setTab("afisha");
-  };
-
-  if (!state.onboarded) {
-    return <Onboarding onFinish={finishOnboarding} />;
+  // Полноэкранный чат поверх всего
+  if (chat) {
+    return <ChatThread chat={chat} onBack={() => setChat(null)} />;
   }
 
   return (
     <div className="phone">
-      <div className="appbar">
-        <div className="appbar-row">
-          <div>
-            <div className="brand">
-              Uni<span className="dot">·</span>one
-            </div>
-            <div className="subtitle">социализация студентов</div>
-          </div>
-          <div
-            className="xp-chip"
-            onClick={resetDemo}
-            title="Сбросить демо"
-            style={{ cursor: "pointer" }}
-          >
-            ⚡ {state.user.xp} XP · ур. {state.user.level}
-          </div>
-        </div>
-      </div>
-
-      {tab === "afisha" && (
-        <Afisha
-          user={state.user}
-          registered={state.registered}
-          onRegister={toggleRegister}
+      {tab === "discover" && (
+        <Discover onProfile={() => setTab("profile")} onDecision={onDecision} />
+      )}
+      {tab === "events" && (
+        <Events going={state.going} onToggle={toggleEvent} />
+      )}
+      {tab === "matches" && (
+        <Matches matches={state.matches} onMessage={setChat} />
+      )}
+      {tab === "messages" && (
+        <Messages
+          onOpenChat={setChat}
+          added={state.added}
+          onAdd={addFriend}
         />
       )}
-      {tab === "communities" && (
-        <Communities
-          user={state.user}
-          joined={state.joined}
-          onJoin={toggleJoin}
-        />
-      )}
-      {tab === "profile" && (
-        <Profile
-          user={state.user}
-          registered={state.registered}
-          joined={state.joined}
-        />
-      )}
+      {tab === "profile" && <Profile stats={state.stats} />}
 
       {toast && <div className="toast">{toast}</div>}
+
+      {matchPopup && (
+        <div className="match-overlay">
+          <div className="match-title">Это мэтч! 🎉</div>
+          <div className="match-sub">
+            Вы с {matchPopup.name} понравились друг другу
+          </div>
+          <div className="match-faces">
+            <SmartImg className="mf" src={ME.photo} alt="Вы" />
+            <SmartImg className="mf" src={matchPopup.photo} alt={matchPopup.name} />
+          </div>
+          <button
+            className="btn-rsvp"
+            onClick={() => {
+              const c = { id: matchPopup.id, name: matchPopup.name, photo: matchPopup.photo };
+              setMatchPopup(null);
+              setChat(c);
+            }}
+          >
+            Написать сообщение
+          </button>
+          <button className="ghost" onClick={() => setMatchPopup(null)}>
+            Продолжить свайпать
+          </button>
+        </div>
+      )}
 
       <nav className="tabbar">
         {TABS.map((t) => (
@@ -159,7 +151,10 @@ export default function App() {
             className={`tab ${tab === t.id ? "active" : ""}`}
             onClick={() => setTab(t.id)}
           >
-            <span className="ico">{t.icon}</span>
+            <Icon
+              name={tab === t.id && t.id === "matches" ? "heartFill" : t.icon}
+              size={24}
+            />
             {t.label}
           </button>
         ))}
