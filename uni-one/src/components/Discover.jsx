@@ -4,7 +4,7 @@ import SmartImg from "./SmartImg";
 import { PEOPLE } from "../data";
 
 // Экран «Главная» — свайп-знакомства (drag + кнопки).
-export default function Discover({ onProfile, onDecision }) {
+export default function Discover({ onProfile, onDecision, onOpen }) {
   const [index, setIndex] = useState(0);
   const [drag, setDrag] = useState({ x: 0, y: 0, active: false });
   const [exit, setExit] = useState(null); // 'like' | 'nope'
@@ -43,7 +43,11 @@ export default function Discover({ onProfile, onDecision }) {
     start.current = null;
     if (drag.x > 110) finish("like");
     else if (drag.x < -110) finish("nope");
-    else setDrag({ x: 0, y: 0, active: false });
+    else {
+      // Малое перемещение = тап → открыть профиль анкеты
+      if (Math.abs(drag.x) < 8 && Math.abs(drag.y) < 8) onOpen?.(person);
+      setDrag({ x: 0, y: 0, active: false });
+    }
   };
 
   // Трансформ верхней карточки

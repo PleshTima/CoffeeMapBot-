@@ -39,6 +39,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ===== Сцена с рамкой телефона (для просмотра на компе) ===== */
+.stage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(900px 520px at 50% -10%, #1b1d28, transparent),
+    linear-gradient(180deg, #0a0b0f, #101218);
+}
+
 button {
   font-family: inherit;
   cursor: pointer;
@@ -53,21 +64,153 @@ img {
 
 /* ===== Каркас телефона ===== */
 .phone {
-  max-width: 440px;
-  margin: 0 auto;
-  min-height: 100vh;
-  background: linear-gradient(180deg, var(--bg-grad-top) 0%, var(--bg) 22%);
   position: relative;
+  width: 412px;
+  height: 860px;
+  max-height: calc(100vh - 48px);
+  background: linear-gradient(180deg, var(--bg-grad-top) 0%, var(--bg) 22%);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 0 80px rgba(0, 0, 0, 0.6);
   overflow: hidden;
+  border-radius: 48px;
+  border: 11px solid #0a0a0c;
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6), inset 0 0 0 2px #23252e;
+}
+/* Чёлка */
+.phone::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 148px;
+  height: 26px;
+  background: #0a0a0c;
+  border-radius: 0 0 18px 18px;
+  z-index: 210;
 }
 .screen {
   flex: 1;
   overflow-y: auto;
-  padding: 0 18px 110px;
+  padding: 50px 18px 104px;
   -webkit-overflow-scrolling: touch;
+}
+
+/* На реальном телефоне — на весь экран без рамки */
+@media (max-width: 480px) {
+  .stage {
+    padding: 0;
+  }
+  .phone {
+    width: 100vw;
+    height: 100vh;
+    max-height: none;
+    border: none;
+    border-radius: 0;
+  }
+}
+
+/* ===== Статус-бар ===== */
+.statusbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  pointer-events: none;
+}
+.statusbar .sb-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.statusbar .sb-bat {
+  width: 24px;
+  height: 12px;
+  border: 1.5px solid var(--text);
+  border-radius: 3px;
+  position: relative;
+  padding: 1.5px;
+}
+.statusbar .sb-bat::after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  top: 3px;
+  width: 2px;
+  height: 4px;
+  background: var(--text);
+  border-radius: 0 1px 1px 0;
+}
+.statusbar .sb-bat i {
+  display: block;
+  height: 100%;
+  width: 80%;
+  background: var(--text);
+  border-radius: 1px;
+}
+
+/* ===== Push-экран (выезжает справа) ===== */
+.push {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.33, 1, 0.68, 1);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.5);
+}
+.push.entered {
+  transform: translateX(0);
+}
+.push.closing {
+  transform: translateX(100%);
+}
+.detail-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 56px 14px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.detail-head.on-image {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent);
+}
+.detail-head .back {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.detail-head .h-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+.detail-scroll {
+  flex: 1;
+  overflow-y: auto;
+}
+.detail-scroll::-webkit-scrollbar {
+  display: none;
 }
 .screen::-webkit-scrollbar {
   display: none;
@@ -147,8 +290,9 @@ img {
 }
 .deck {
   position: relative;
-  height: 68vh;
-  max-height: 620px;
+  height: 56vh;
+  max-height: 540px;
+  min-height: 400px;
   margin-top: 6px;
 }
 .swipe-card {
@@ -740,16 +884,14 @@ img {
 .thread {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  max-width: 440px;
-  margin: 0 auto;
+  height: 100%;
   background: var(--bg);
 }
 .thread-head {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px 16px 14px;
+  padding: 56px 16px 14px;
   border-bottom: 1px solid var(--stroke);
   background: var(--elev);
 }
@@ -964,12 +1106,10 @@ img {
 
 /* ===== Нижняя навигация ===== */
 .tabbar {
-  position: fixed;
+  position: absolute;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 440px;
+  left: 0;
+  right: 0;
   background: rgba(16, 17, 22, 0.92);
   backdrop-filter: blur(14px);
   border-top: 1px solid var(--stroke);
@@ -995,7 +1135,7 @@ img {
 
 /* ===== Match overlay (это мэтч!) ===== */
 .match-overlay {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 60;
   background: rgba(8, 8, 12, 0.92);
@@ -1052,7 +1192,7 @@ img {
 
 /* ===== Тост ===== */
 .toast {
-  position: fixed;
+  position: absolute;
   bottom: 100px;
   left: 50%;
   transform: translateX(-50%);
@@ -1075,4 +1215,164 @@ img {
   color: var(--muted);
   padding: 60px 20px;
   font-size: 15px;
+}
+
+/* ===== Детали мероприятия ===== */
+.detail-hero {
+  position: relative;
+  height: 280px;
+  background: linear-gradient(135deg, #2a2d3a, #161821);
+}
+.detail-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.detail-hero .scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 40%, var(--bg));
+}
+.detail-body {
+  padding: 0 20px 30px;
+  margin-top: -34px;
+  position: relative;
+}
+.detail-title {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--stroke);
+}
+.info-row .ic {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--card);
+  display: grid;
+  place-items: center;
+  color: var(--orange);
+  flex-shrink: 0;
+}
+.info-row .k {
+  font-size: 12px;
+  color: var(--muted);
+}
+.info-row .v {
+  font-size: 15px;
+  font-weight: 600;
+}
+.detail-section {
+  font-size: 17px;
+  font-weight: 800;
+  margin: 22px 0 10px;
+}
+.detail-text {
+  font-size: 15px;
+  line-height: 1.55;
+  color: #c8ccd4;
+}
+.detail-cta {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent, var(--bg) 26%);
+}
+
+/* ===== Профиль человека (детали) ===== */
+.person-hero {
+  position: relative;
+  height: 440px;
+  background: linear-gradient(135deg, #2a2d3a, #161821);
+}
+.person-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.person-hero .scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 45%, var(--bg));
+}
+.person-hero .ov {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 16px;
+}
+.person-hero .nm {
+  font-size: 30px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.person-hero .fc {
+  font-size: 16px;
+  color: #dfe2e8;
+  margin-top: 2px;
+}
+.person-actions {
+  display: flex;
+  gap: 14px;
+  padding: 16px 20px;
+}
+.person-actions button {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.person-actions .like {
+  background: var(--orange);
+  color: #fff;
+}
+.person-actions .msg {
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  color: var(--text);
+}
+
+/* ===== Уведомления ===== */
+.notif {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 2px;
+  border-bottom: 1px solid var(--stroke);
+}
+.notif .nic {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+  background: var(--card-2);
+  display: grid;
+  place-items: center;
+}
+.notif .ntext {
+  flex: 1;
+  font-size: 15px;
+  line-height: 1.35;
+}
+.notif .ntime {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
 }

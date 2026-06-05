@@ -2,9 +2,9 @@
 // Фото подгружаются с pravatar.cc / picsum.photos — при отсутствии сети
 // показывается градиентный фон-заглушка.
 
-export const avatar = (n) => `https://i.pravatar.cc/400?img=${n}`;
+export const avatar = (n) => `https://i.pravatar.cc/600?img=${n}`;
 export const banner = (seed) =>
-  `https://picsum.photos/seed/${seed}/800/500`;
+  `https://picsum.photos/seed/${seed}/900/600`;
 
 // Текущий пользователь (профиль)
 export const ME = {
@@ -31,6 +31,7 @@ export const PEOPLE = [
     photo: avatar(12),
     verified: true,
     likesYou: true,
+    bio: "Пишу на Python и играю в футбол по выходным. Ищу компанию на хакатоны и вечерний кофе.",
     interests: ["Программирование", "Кофе", "Футбол", "Музыка", "Путешествия", "Кино"],
   },
   {
@@ -43,6 +44,7 @@ export const PEOPLE = [
     photo: avatar(45),
     verified: false,
     likesYou: false,
+    bio: "Снимаю на плёнку, обожаю старое кино и уютные книжные. Расскажи мне свой любимый фильм.",
     interests: ["Кино", "Фотография", "Литература", "Кофе"],
   },
   {
@@ -55,6 +57,7 @@ export const PEOPLE = [
     photo: avatar(15),
     verified: true,
     likesYou: true,
+    bio: "Физик-теоретик, шахматист и меломан. За интеллектуальные споры до утра.",
     interests: ["Наука", "Шахматы", "Музыка", "Спорт"],
   },
   {
@@ -67,6 +70,7 @@ export const PEOPLE = [
     photo: avatar(32),
     verified: false,
     likesYou: false,
+    bio: "Запускаю свой стартап и бегаю по утрам. Практикую английский — let's chat!",
     interests: ["Стартапы", "Английский", "Бег", "Кофе"],
   },
   {
@@ -79,6 +83,7 @@ export const PEOPLE = [
     photo: avatar(20),
     verified: true,
     likesYou: true,
+    bio: "Первокурсница, влюблена в искусство и путешествия. Покажи мне любимые места Москвы!",
     interests: ["Искусство", "Путешествия", "Музыка", "Кино"],
   },
   {
@@ -91,6 +96,7 @@ export const PEOPLE = [
     photo: avatar(33),
     verified: false,
     likesYou: false,
+    bio: "Математик с гитарой. Катаюсь на велике по набережным и варю отличный кофе.",
     interests: ["Математика", "Гитара", "Велоспорт", "Кофе"],
   },
 ];
@@ -109,6 +115,7 @@ export const EVENTS = [
     today: true,
     online: false,
     attendees: [12, 45, 15],
+    desc: "Самый тёплый вечер недели! Манчкин, Каркассон, Codenames и десятки других игр. Приходи один или с друзьями — мы поможем собрать компанию за столом. Чай и печеньки за счёт клуба.",
   },
   {
     id: "e2",
@@ -122,6 +129,7 @@ export const EVENTS = [
     today: false,
     online: false,
     attendees: [32, 33, 20],
+    desc: "48 часов, чтобы собрать продукт мечты. Призовой фонд, менторы из IT-компаний и нетворкинг с лучшими студентами. Регистрируйся командой или найди сокомандников прямо здесь.",
   },
   {
     id: "e3",
@@ -135,6 +143,7 @@ export const EVENTS = [
     today: false,
     online: false,
     attendees: [47, 45, 20],
+    desc: "5 минут на знакомство — и дальше решаешь ты. Лёгкий формат, приятная атмосфера и реальный шанс встретить своего человека из соседнего корпуса.",
   },
   {
     id: "e4",
@@ -148,6 +157,7 @@ export const EVENTS = [
     today: true,
     online: true,
     attendees: [15, 12, 32],
+    desc: "Разговорный клуб для любого уровня. Обсуждаем кино, путешествия и науку на английском в дружелюбной обстановке. Ссылка на Zoom придёт после записи.",
   },
   {
     id: "e5",
@@ -161,6 +171,7 @@ export const EVENTS = [
     today: false,
     online: false,
     attendees: [20, 33, 45],
+    desc: "Большой экран, пледы, попкорн и звёздное небо. В программе — культовая классика. Бери друзей или знакомься с новыми прямо на пледе рядом.",
   },
 ];
 
@@ -246,4 +257,13 @@ export const SUGGESTIONS = [
     photos: [12, 15, 33],
     photo: avatar(51),
   },
+];
+
+// Уведомления (экран открывается по колокольчику)
+export const NOTIFICATIONS = [
+  { id: "n1", type: "like", text: "Максим лайкнул вашу анкету", time: "5 мин назад", photo: avatar(12) },
+  { id: "n2", type: "match", text: "У вас новый мэтч с Игорем!", time: "1 ч назад", photo: avatar(15) },
+  { id: "n3", type: "event", text: "Завтра «Вечер настолок МГУ» в 18:00", time: "3 ч назад", photo: null },
+  { id: "n4", type: "message", text: "Настя отправила вам сообщение", time: "Вчера", photo: avatar(20) },
+  { id: "n5", type: "friend", text: "Егор принял вашу заявку в друзья", time: "Вчера", photo: avatar(51) },
 ];

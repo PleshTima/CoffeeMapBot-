@@ -10,10 +10,18 @@ const INTEREST_ICON = {
 };
 
 // Экран «Профиль».
-export default function Profile({ stats }) {
+export default function Profile({ stats, onBack }) {
   const s = stats || ME.stats;
   return (
-    <div className="screen">
+    <div className="screen" style={{ paddingTop: onBack ? 0 : 50 }}>
+      {onBack && (
+        <div className="detail-head" style={{ padding: "56px 0 4px" }}>
+          <button className="back" onClick={onBack} aria-label="Назад">
+            <Icon name="back" size={22} />
+          </button>
+          <span className="h-title">Профиль</span>
+        </div>
+      )}
       <div className="profile-top">
         <div className="ring profile-ring">
           <SmartImg src={ME.photo} alt={ME.name} />

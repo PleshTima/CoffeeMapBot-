@@ -11,7 +11,7 @@ const FILTERS = [
 ];
 
 // Экран «Мероприятия».
-export default function Events({ going, onToggle }) {
+export default function Events({ going, onToggle, onOpen, onBell }) {
   const [filter, setFilter] = useState("all");
 
   const list = useMemo(
@@ -30,8 +30,12 @@ export default function Events({ going, onToggle }) {
       <div className="page-head">
         <div className="page-title">Мероприятия</div>
         <div className="head-actions">
-          <Icon name="bell" size={24} />
-          <Icon name="search" size={24} />
+          <button className="icon-btn" onClick={onBell} aria-label="Уведомления">
+            <Icon name="bell" size={24} />
+          </button>
+          <button className="icon-btn" aria-label="Поиск">
+            <Icon name="search" size={24} />
+          </button>
         </div>
       </div>
 
@@ -54,7 +58,11 @@ export default function Events({ going, onToggle }) {
         const count = e.going + (isGoing ? 1 : 0);
         return (
           <div className="event-card" key={e.id}>
-            <div className="event-banner">
+            <div
+              className="event-banner"
+              onClick={() => onOpen?.(e)}
+              style={{ cursor: "pointer" }}
+            >
               <SmartImg src={banner(e.seed)} alt={e.title} />
               <div className="scrim" />
               {e.badge && (
@@ -73,7 +81,13 @@ export default function Events({ going, onToggle }) {
             </div>
 
             <div className="event-body">
-              <div className="event-title">{e.title}</div>
+              <div
+                className="event-title"
+                onClick={() => onOpen?.(e)}
+                style={{ cursor: "pointer" }}
+              >
+                {e.title}
+              </div>
               <div className="event-row date">
                 <Icon name="calendar" size={17} /> {e.date} · {e.time}
               </div>
