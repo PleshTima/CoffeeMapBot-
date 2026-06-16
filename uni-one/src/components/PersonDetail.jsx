@@ -9,6 +9,7 @@ export default function PersonDetail({
   onBack,
   onLike,
   onMessage,
+  onInvite,
   onOpenEvent,
 }) {
   const events = (person.events || []).map(eventById).filter(Boolean);
@@ -93,6 +94,11 @@ export default function PersonDetail({
         {onLike && (
           <button className="like" onClick={() => onLike(person)}>
             <Icon name="heartFill" size={18} /> Лайк
+          </button>
+        )}
+        {onInvite && (
+          <button className="invite" onClick={() => onInvite(person)}>
+            <Icon name="star" size={18} /> Позвать
           </button>
         )}
         {onMessage && (

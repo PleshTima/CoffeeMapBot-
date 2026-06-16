@@ -87,6 +87,12 @@ const paths = {
   send: <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" />,
   back: <path d="M15 18l-6-6 6-6" />,
   edit: <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />,
+  "plus-folder": (
+    <>
+      <path d="M3 7a2 2 0 0 1 2-2h3.5l2 2H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+      <path d="M12 11v5M9.5 13.5h5" />
+    </>
+  ),
   chevron: <path d="M9 6l6 6-6 6" />,
   arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
 };

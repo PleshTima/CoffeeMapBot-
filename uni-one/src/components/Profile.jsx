@@ -11,7 +11,14 @@ const INTEREST_ICON = {
 };
 
 // Экран «Профиль».
-export default function Profile({ stats, goingEvents = [], onBack, onOpenEvent }) {
+export default function Profile({
+  stats,
+  goingEvents = [],
+  circleSummary,
+  onOpenContacts,
+  onBack,
+  onOpenEvent,
+}) {
   const s = stats || ME.stats;
   return (
     <div className="screen" style={{ paddingTop: onBack ? 0 : 50 }}>
@@ -59,6 +66,19 @@ export default function Profile({ stats, goingEvents = [], onBack, onOpenEvent }
           <div className="num">{s.friends}</div>
         </div>
       </div>
+
+      {onOpenContacts && (
+        <button className="circle-cta" onClick={onOpenContacts}>
+          <span className="cc-left">
+            <Icon name="users" size={22} />
+            <span>
+              <div className="cc-title">Круг общения</div>
+              <div className="cc-sub">{circleSummary}</div>
+            </span>
+          </span>
+          <Icon name="chevron" size={20} />
+        </button>
+      )}
 
       <div className="about-card">
         <div className="about-head">

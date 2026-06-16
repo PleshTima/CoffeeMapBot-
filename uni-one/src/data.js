@@ -402,3 +402,26 @@ export const NOTIFICATIONS = [
   { id: "n4", type: "message", text: "Настя отправила вам сообщение", time: "Вчера", photo: avatar(20) },
   { id: "n5", type: "friend", text: "Егор принял вашу заявку в друзья", time: "Вчера", photo: avatar(51) },
 ];
+
+// Круги общения (классификация контактов)
+export const CIRCLES = [
+  { id: "friend", label: "Друзья", icon: "💚", color: "var(--green)" },
+  { id: "pal", label: "Приятели", icon: "👋", color: "var(--blue)" },
+  { id: "acq", label: "Знакомые", icon: "🙂", color: "var(--muted)" },
+];
+export const circleById = (id) => CIRCLES.find((c) => c.id === id) || CIRCLES[2];
+// Близкий круг — для раздела «где мои друзья»
+export const CLOSE_CIRCLES = ["friend", "pal"];
+
+// Контакты пользователя (с кругом общения и мероприятиями)
+export const CONTACTS = [
+  { id: "p1", name: "Максим", age: 21, faculty: "ВМК", photo: avatar(12), circle: "pal", events: ["e1", "e2", "e11"], bio: "Пишу на Python и играю в футбол по выходным.", interests: ["Программирование", "Кофе", "Футбол"] },
+  { id: "p3", name: "Игорь", age: 22, faculty: "Физфак", photo: avatar(15), circle: "friend", events: ["e14", "e8", "e9"], bio: "Физик-теоретик, шахматист и меломан.", interests: ["Наука", "Шахматы", "Музыка"] },
+  { id: "p5", name: "Настя", age: 19, faculty: "Истфак", photo: avatar(20), circle: "friend", events: ["e1", "e6", "e9"], bio: "Влюблена в искусство и путешествия.", interests: ["Искусство", "Путешествия", "Музыка"] },
+  { id: "p7", name: "Катя", age: 20, faculty: "Соцфак", photo: avatar(44), circle: "pal", events: ["e6", "e10", "e3"], bio: "Организую студенческие вечеринки.", interests: ["Вечеринки", "Караоке", "Танцы"] },
+  { id: "p8", name: "Артём", age: 22, faculty: "ВМК", photo: avatar(13), circle: "pal", events: ["e7", "e2", "e8"], bio: "Баскетбол, код и хорошая музыка.", interests: ["Баскетбол", "Программирование", "Музыка"] },
+  { id: "k1", name: "Дима", age: 23, faculty: "Мехмат", photo: avatar(33), circle: "friend", events: ["e10", "e13", "e9"], bio: "Математик с гитарой и велосипедом.", interests: ["Математика", "Гитара", "Велоспорт"] },
+  { id: "p2", name: "Лиза", age: 19, faculty: "Журфак", photo: avatar(45), circle: "acq", events: ["e5", "e12"], bio: "Снимаю на плёнку, обожаю старое кино.", interests: ["Кино", "Фотография", "Литература"] },
+  { id: "p4", name: "Саша", age: 20, faculty: "Экономфак", photo: avatar(32), circle: "acq", events: ["e11", "e13", "e4"], bio: "Запускаю стартап и бегаю по утрам.", interests: ["Стартапы", "Английский", "Бег"] },
+];
+

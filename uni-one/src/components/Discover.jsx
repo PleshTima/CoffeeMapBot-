@@ -4,7 +4,7 @@ import SmartImg from "./SmartImg";
 import { PEOPLE, eventById } from "../data";
 
 // Экран «Главная» — свайп-знакомства (drag + кнопки).
-export default function Discover({ onProfile, onDecision, onOpen }) {
+export default function Discover({ onProfile, onDecision, onOpen, onInvite }) {
   const [index, setIndex] = useState(0);
   const [drag, setDrag] = useState({ x: 0, y: 0, active: false });
   const [exit, setExit] = useState(null); // 'like' | 'nope'
@@ -116,7 +116,11 @@ export default function Discover({ onProfile, onDecision, onOpen }) {
             <button className="round-btn nope" onClick={() => finish("nope")}>
               <Icon name="x" size={28} stroke={2.5} />
             </button>
-            <button className="round-btn star" onClick={() => finish("like")}>
+            <button
+              className="round-btn star"
+              onClick={() => onInvite?.(person)}
+              aria-label="Позвать на мероприятие"
+            >
               <Icon name="star" size={24} />
             </button>
             <button className="round-btn like" onClick={() => finish("like")}>

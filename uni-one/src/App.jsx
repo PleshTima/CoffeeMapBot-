@@ -11,11 +11,12 @@ import Profile from "./components/Profile";
 import EventDetail from "./components/EventDetail";
 import PersonDetail from "./components/PersonDetail";
 import Notifications from "./components/Notifications";
-import { ME, PEOPLE, eventById } from "./data";
+import Contacts from "./components/Contacts";
+import EventPicker from "./components/EventPicker";
+import { ME, PEOPLE, CONTACTS, CIRCLES, eventById } from "./data";
 
-const STORAGE_KEY = "uni-one-v4";
+const STORAGE_KEY = "uni-one-v5";
 
-// Стартовые пары (взаимные лайки) — чтобы мэтчи были не пустыми.
 const seedPerson = (p, isNew) => ({
   id: p.id,
   name: p.name,
@@ -46,12 +47,20 @@ export default function App() {
     } catch {
       /* ignore */
     }
-    return { going: [], added: [], matches: SEED_MATCHES, stats: ME.stats };
+    return {
+      going: [],
+      added: [],
+      matches: SEED_MATCHES,
+      stats: ME.stats,
+      circles: {}, // id -> круг (переопределение)
+      folders: [], // {id, name, memberIds}
+    };
   });
 
   const [tab, setTab] = useState("discover");
   const [stack, setStack] = useState([]);
   const [matchPopup, setMatchPopup] = useState(null);
+  const [invitePerson, setInvitePerson] = useState(null);
   const [toast, setToast] = useState(null);
   const keyRef = useRef(0);
 
@@ -64,6 +73,12 @@ export default function App() {
     setTimeout(() => setToast(null), 2000);
   };
 
+  // Контакты с актуальным кругом общения
+  const contacts = CONTACTS.map((c) => ({
+    ...c,
+    circle: state.circles[c.id] || c.circle,
+  }));
+
   // ===== Навигационный стек =====
   const push = (screen) =>
     setStack((s) => [...s, { ...screen, key: ++keyRef.current, closing: false }]);
@@ -74,16 +89,17 @@ export default function App() {
   const removeByKey = (key) => setStack((s) => s.filter((x) => x.key !== key));
 
   // ===== Действия =====
-  const registerMatch = (person) => {
-    setState((s) => ({
-      ...s,
-      matches: [
-        seedPerson(person, true),
-        ...s.matches.filter((m) => m.id !== person.id),
-      ],
-      stats: { ...s.stats, matches: s.stats.matches + 1 },
-    }));
-    setMatchPopup(person);
+  const registerMatch = (person, popup = true) => {
+    setState((s) =>
+      s.matches.some((m) => m.id === person.id)
+        ? s
+        : {
+            ...s,
+            matches: [seedPerson(person, true), ...s.matches],
+            stats: { ...s.stats, matches: s.stats.matches + 1 },
+          }
+    );
+    if (popup) setMatchPopup(person);
   };
 
   const onDecision = (dir, person) => {
@@ -111,12 +127,54 @@ export default function App() {
           }
     );
 
+  // Круги и папки
+  const setCircle = (id, circle) =>
+    setState((s) => ({ ...s, circles: { ...s.circles, [id]: circle } }));
+  const createFolder = (name, addId) =>
+    setState((s) => ({
+      ...s,
+      folders: [
+        ...s.folders,
+        { id: `f${Date.now()}`, name, memberIds: addId ? [addId] : [] },
+      ],
+    }));
+  const toggleFolderMember = (folderId, contactId) =>
+    setState((s) => ({
+      ...s,
+      folders: s.folders.map((f) =>
+        f.id !== folderId
+          ? f
+          : {
+              ...f,
+              memberIds: f.memberIds.includes(contactId)
+                ? f.memberIds.filter((x) => x !== contactId)
+                : [...f.memberIds, contactId],
+            }
+      ),
+    }));
+
   const openChat = (chat) => push({ type: "chat", data: chat });
   const openPerson = (person) => push({ type: "person", data: person });
   const openEvent = (event) => push({ type: "event", data: event });
 
+  // Звёздочка → пригласить на мероприятие
+  const pickInviteEvent = (event) => {
+    const p = invitePerson;
+    setInvitePerson(null);
+    if (!p) return;
+    registerMatch(p, false);
+    openChat({ id: p.id, name: p.name, photo: p.photo, invite: event });
+    showToast(`🎟️ Приглашение для ${p.name} отправлено`);
+  };
+
   const goingEvents = state.going.map(eventById).filter(Boolean);
   const hasNew = state.matches.some((m) => m.isNew);
+  const circleSummary = CIRCLES.map(
+    (c) => `${c.icon} ${contacts.filter((x) => x.circle === c.id).length}`
+  ).join("   ");
+
+  const openContacts = () =>
+    push({ type: "contacts" });
 
   // ===== Рендер push-экрана =====
   const renderPush = (item) => {
@@ -153,6 +211,10 @@ export default function App() {
               pop();
               openChat({ id: p.id, name: p.name, photo: p.photo });
             }}
+            onInvite={(p) => {
+              pop();
+              setInvitePerson(p);
+            }}
             onOpenEvent={openEvent}
           />
         );
@@ -170,11 +232,25 @@ export default function App() {
             }}
           />
         );
+      case "contacts":
+        return (
+          <Contacts
+            contacts={contacts}
+            folders={state.folders}
+            onSetCircle={setCircle}
+            onCreateFolder={createFolder}
+            onToggleFolderMember={toggleFolderMember}
+            onOpenPerson={openPerson}
+            onBack={pop}
+          />
+        );
       case "profile":
         return (
           <Profile
             stats={state.stats}
             goingEvents={goingEvents}
+            circleSummary={circleSummary}
+            onOpenContacts={openContacts}
             onBack={pop}
             onOpenEvent={openEvent}
           />
@@ -194,10 +270,16 @@ export default function App() {
             onProfile={() => setTab("profile")}
             onDecision={onDecision}
             onOpen={openPerson}
+            onInvite={setInvitePerson}
           />
         )}
         {tab === "events" && (
-          <Events going={state.going} onToggle={toggleEvent} onOpen={openEvent} />
+          <Events
+            going={state.going}
+            onToggle={toggleEvent}
+            onOpen={openEvent}
+            contacts={contacts}
+          />
         )}
         {tab === "messages" && (
           <Messages
@@ -214,6 +296,8 @@ export default function App() {
           <Profile
             stats={state.stats}
             goingEvents={goingEvents}
+            circleSummary={circleSummary}
+            onOpenContacts={openContacts}
             onOpenEvent={openEvent}
           />
         )}
@@ -229,6 +313,14 @@ export default function App() {
         ))}
 
         {toast && <div className="toast">{toast}</div>}
+
+        {invitePerson && (
+          <EventPicker
+            personName={invitePerson.name}
+            onPick={pickInviteEvent}
+            onClose={() => setInvitePerson(null)}
+          />
+        )}
 
         {matchPopup && (
           <div className="match-overlay">

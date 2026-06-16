@@ -1,32 +1,56 @@
 import { useMemo, useState } from "react";
 import Icon from "./Icon";
 import SmartImg from "./SmartImg";
-import { EVENTS, EVENT_CATEGORIES, catIcon, banner, avatar } from "../data";
+import {
+  EVENTS,
+  EVENT_CATEGORIES,
+  catIcon,
+  catLabel,
+  banner,
+  avatar,
+  CLOSE_CIRCLES,
+} from "../data";
 
+// Множественные быстрые фильтры
 const QUICK = [
-  { id: "all", label: "Все" },
   { id: "today", label: "Сегодня" },
   { id: "online", label: "Онлайн" },
+  { id: "friends", label: "С друзьями" },
 ];
 
-// Экран «Мероприятия» — AI-поиск, фильтры по категориям, лента событий.
-export default function Events({ going, onToggle, onOpen }) {
+// Экран «Мероприятия» — AI-поиск, мультифильтры, друзья, лента событий.
+export default function Events({ going, onToggle, onOpen, contacts = [] }) {
   const [query, setQuery] = useState("");
-  const [quick, setQuick] = useState("all");
+  const [active, setActive] = useState({}); // множественный выбор
   const [cat, setCat] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
+
+  const toggle = (id) => setActive((a) => ({ ...a, [id]: !a[id] }));
+
+  // близкие контакты, идущие на событие
+  const friendsOf = useMemo(() => {
+    const close = contacts.filter((c) => CLOSE_CIRCLES.includes(c.circle));
+    return (eventId) => close.filter((c) => c.events?.includes(eventId));
+  }, [contacts]);
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
     return EVENTS.filter((e) => {
-      if (quick === "today" && !e.today) return false;
-      if (quick === "online" && !e.online) return false;
+      if (active.today && !e.today) return false;
+      if (active.online && !e.online) return false;
+      if (active.friends && friendsOf(e.id).length === 0) return false;
       if (cat && e.category !== cat) return false;
       if (q && !`${e.title} ${e.place} ${e.category}`.toLowerCase().includes(q))
         return false;
       return true;
     });
-  }, [query, quick, cat]);
+  }, [query, active, cat, friendsOf]);
+
+  // «Где друзья сегодня»
+  const friendsToday = useMemo(
+    () => EVENTS.filter((e) => e.today && friendsOf(e.id).length > 0),
+    [friendsOf]
+  );
 
   return (
     <div className="screen">
@@ -43,7 +67,6 @@ export default function Events({ going, onToggle, onOpen }) {
         </div>
       </div>
 
-      {/* AI-поиск */}
       <div className="ai-search">
         <span className="ai-badge">
           <Icon name="sparkles" size={16} /> ИИ
@@ -56,20 +79,20 @@ export default function Events({ going, onToggle, onOpen }) {
         <Icon name="search" size={20} />
       </div>
 
-      {/* Быстрые фильтры */}
+      {/* Множественные фильтры */}
       <div className="filters">
         {QUICK.map((f) => (
           <button
             key={f.id}
-            className={`pill ${quick === f.id ? "active" : ""}`}
-            onClick={() => setQuick(f.id)}
+            className={`pill ${active[f.id] ? "active" : ""}`}
+            onClick={() => toggle(f.id)}
           >
+            {active[f.id] && "✓ "}
             {f.label}
           </button>
         ))}
       </div>
 
-      {/* Категории (по кнопке фильтра) */}
       {showFilters && (
         <div className="filters cat-row">
           <button
@@ -90,6 +113,41 @@ export default function Events({ going, onToggle, onOpen }) {
         </div>
       )}
 
+      {/* Где друзья сегодня */}
+      {friendsToday.length > 0 && !active.today && !active.online && !cat && !query && (
+        <>
+          <div className="section-row">
+            <span className="section-label">👀 Где твои друзья сегодня</span>
+          </div>
+          <div className="friends-today">
+            {friendsToday.map((e) => {
+              const fr = friendsOf(e.id);
+              return (
+                <button
+                  className="ft-card"
+                  key={e.id}
+                  onClick={() => onOpen?.(e)}
+                >
+                  <SmartImg src={banner(e.seed)} alt={e.title} />
+                  <div className="ft-scrim" />
+                  <div className="ft-info">
+                    <div className="ft-friends">
+                      {fr.slice(0, 3).map((c) => (
+                        <SmartImg key={c.id} src={c.photo} alt={c.name} />
+                      ))}
+                    </div>
+                    <div className="ft-title">{e.title}</div>
+                    <div className="ft-meta">
+                      {fr.map((c) => c.name).join(", ")} · {e.time}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
       {list.length === 0 && (
         <div className="empty">По запросу ничего не нашлось 🤖</div>
       )}
@@ -97,6 +155,7 @@ export default function Events({ going, onToggle, onOpen }) {
       {list.map((e) => {
         const isGoing = going.includes(e.id);
         const count = e.going + (isGoing ? 1 : 0);
+        const fr = friendsOf(e.id);
         return (
           <div className="event-card" key={e.id}>
             <div
@@ -120,7 +179,7 @@ export default function Events({ going, onToggle, onOpen }) {
                 </span>
               )}
               <span className="event-cat">
-                {catIcon(e.category)} {e.category && cap(e.category)}
+                {catIcon(e.category)} {catLabel(e.category)}
               </span>
             </div>
 
@@ -138,6 +197,19 @@ export default function Events({ going, onToggle, onOpen }) {
               <div className="event-row">
                 <Icon name="pin" size={17} /> {e.place}
               </div>
+
+              {fr.length > 0 && (
+                <div className="friends-going">
+                  <div className="attendees">
+                    {fr.slice(0, 3).map((c) => (
+                      <SmartImg key={c.id} className="av" src={c.photo} />
+                    ))}
+                  </div>
+                  <span>
+                    💚 {fr.length === 1 ? `${fr[0].name} идёт` : `${fr.length} друзей идут`}
+                  </span>
+                </div>
+              )}
 
               <div className="event-foot">
                 <div className="attendees">
@@ -168,15 +240,3 @@ export default function Events({ going, onToggle, onOpen }) {
     </div>
   );
 }
-
-const LABELS = {
-  party: "Вечеринка",
-  networking: "Нетворкинг",
-  lecture: "Лекция",
-  sport: "Спорт",
-  music: "Музыка",
-  culture: "Культура",
-  it: "IT",
-  games: "Игры",
-};
-const cap = (id) => LABELS[id] || id;
