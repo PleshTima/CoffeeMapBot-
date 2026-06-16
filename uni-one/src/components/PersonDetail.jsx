@@ -1,8 +1,17 @@
 import Icon from "./Icon";
 import SmartImg from "./SmartImg";
+import MiniEvent from "./MiniEvent";
+import { eventById } from "../data";
 
 // Экран профиля человека / пары (открывается push'ем).
-export default function PersonDetail({ person, onBack, onLike, onMessage }) {
+export default function PersonDetail({
+  person,
+  onBack,
+  onLike,
+  onMessage,
+  onOpenEvent,
+}) {
+  const events = (person.events || []).map(eventById).filter(Boolean);
   return (
     <>
       <div className="detail-head on-image">
@@ -62,6 +71,19 @@ export default function PersonDetail({ person, onBack, onLike, onMessage }) {
                   </span>
                 ))}
               </div>
+            </>
+          )}
+
+          {events.length > 0 && (
+            <>
+              <div className="detail-section">🎟️ Куда идёт</div>
+              {events.map((e) => (
+                <MiniEvent
+                  key={e.id}
+                  event={e}
+                  onClick={onOpenEvent ? () => onOpenEvent(e) : undefined}
+                />
+              ))}
             </>
           )}
         </div>

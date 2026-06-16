@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import Icon from "./Icon";
 import SmartImg from "./SmartImg";
-import { PEOPLE } from "../data";
+import { PEOPLE, eventById } from "../data";
 
 // Экран «Главная» — свайп-знакомства (drag + кнопки).
 export default function Discover({ onProfile, onDecision, onOpen }) {
@@ -159,6 +159,13 @@ function Card({ person, style, likeOpacity = 0, nopeOpacity = 0, ...handlers }) 
         <div className="card-sub">
           {person.faculty} · {person.course}
         </div>
+        {person.events?.length > 0 && (
+          <div className="card-events">
+            <span className="tk">🎟️</span>
+            Идёт на «{eventById(person.events[0])?.title}»
+            {person.events.length > 1 && ` +${person.events.length - 1}`}
+          </div>
+        )}
         <div className="card-chips">
           {person.interests.map((it) => (
             <span className="chip-pink" key={it}>

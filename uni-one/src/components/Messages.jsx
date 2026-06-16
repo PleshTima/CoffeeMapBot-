@@ -1,10 +1,18 @@
 import { useState } from "react";
 import Icon from "./Icon";
 import SmartImg from "./SmartImg";
-import { CHATS, NEW_MATCHES, SUGGESTIONS, avatar } from "../data";
+import { CHATS, SUGGESTIONS, avatar } from "../data";
 
-// Экран «Сообщения»: новые мэтчи, список чатов, поиск знакомых.
-export default function Messages({ onOpenChat, added, onAdd }) {
+// Экран «Сообщения»: мэтчи сторис-лентой, чаты, поиск знакомых.
+export default function Messages({
+  matches,
+  onOpenMatch,
+  onOpenChat,
+  added,
+  onAdd,
+  onBell,
+  hasNew,
+}) {
   const [query, setQuery] = useState("");
 
   const chats = CHATS.filter((c) =>
@@ -15,6 +23,17 @@ export default function Messages({ onOpenChat, added, onAdd }) {
     <div className="screen">
       <div className="page-head">
         <div className="page-title">Сообщения</div>
+        <div className="head-actions">
+          <button
+            className="icon-btn"
+            onClick={onBell}
+            aria-label="Уведомления"
+            style={{ position: "relative" }}
+          >
+            <Icon name="bell" size={24} />
+            {hasNew && <span className="notif-dot" />}
+          </button>
+        </div>
       </div>
 
       <div className="search-wrap">
@@ -27,33 +46,34 @@ export default function Messages({ onOpenChat, added, onAdd }) {
         />
       </div>
 
+      {/* Мэтчи — сторис-лентой */}
       <div className="section-row">
         <span className="section-label pink">Новые мэтчи</span>
-        <span className="see-all">
-          Все <Icon name="chevron" size={16} />
-        </span>
+        <span className="see-all">{matches.length}</span>
       </div>
-      <div className="new-matches">
-        {NEW_MATCHES.map((m) => (
+      <div className="stories">
+        {matches.map((m) => (
           <button
-            className="nm-item"
+            className="story"
             key={m.id}
-            onClick={() =>
-              onOpenChat({ id: m.id, name: m.name, photo: m.photo })
-            }
+            onClick={() => onOpenMatch(m)}
           >
-            <div className="nm-ring">
+            <div className={`story-ring ${m.isNew ? "" : "seen"}`}>
               <SmartImg src={m.photo} alt={m.name} />
-              <span className="nm-heart">
-                <Icon name="heartFill" size={11} />
-              </span>
+              {m.isNew && <span className="story-new">NEW</span>}
             </div>
-            <div className="nm-name">{m.name}</div>
+            <div className="story-name">{m.name}</div>
           </button>
         ))}
+        {matches.length === 0 && (
+          <div className="empty" style={{ padding: "20px 10px" }}>
+            Лайкай анкеты — мэтчи появятся здесь
+          </div>
+        )}
       </div>
 
-      <div style={{ marginTop: 8 }}>
+      {/* Чаты */}
+      <div style={{ marginTop: 6 }}>
         {chats.map((c) => (
           <button
             key={c.id}
@@ -77,6 +97,7 @@ export default function Messages({ onOpenChat, added, onAdd }) {
         ))}
       </div>
 
+      {/* Поиск знакомых */}
       <div className="section-row">
         <span className="section-label blue">Поиск знакомых</span>
         <span className="see-all">

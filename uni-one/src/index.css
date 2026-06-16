@@ -1210,6 +1210,203 @@ img {
   gap: 8px;
 }
 
+.icon-btn.filter-on {
+  background: var(--blue);
+  color: #fff;
+}
+
+/* AI-поиск в мероприятиях */
+.ai-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.ai-search::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  padding: 1px;
+  background: linear-gradient(120deg, var(--blue), var(--orange), var(--pink));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.ai-search input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 15px;
+}
+.ai-search > svg:last-child {
+  color: var(--muted);
+}
+.ai-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(120deg, var(--blue), var(--orange));
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 5px 9px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.cat-row {
+  margin-top: -4px;
+}
+
+/* Бейдж категории на обложке события */
+.event-cat {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 999px;
+}
+
+/* Куда идёт человек — на свайп-карточке */
+.card-events {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #fff;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.card-events .tk {
+  color: var(--orange);
+}
+
+/* Список мероприятий человека/профиля (мини-карточки) */
+.mini-event {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.mini-event img,
+.mini-event .ph {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.mini-event .me-main {
+  flex: 1;
+  min-width: 0;
+}
+.mini-event .me-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+.mini-event .me-meta {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.mini-event .me-cat {
+  font-size: 18px;
+}
+
+/* Сторис-лента мэтчей (в Сообщениях) */
+.stories {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 4px 0 10px;
+}
+.stories::-webkit-scrollbar {
+  display: none;
+}
+.story {
+  flex-shrink: 0;
+  width: 72px;
+  text-align: center;
+}
+.story-ring {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  padding: 2.5px;
+  position: relative;
+  background: linear-gradient(135deg, var(--pink), var(--orange));
+}
+.story-ring.seen {
+  background: var(--stroke);
+}
+.story-ring img,
+.story-ring .ph {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid var(--bg);
+}
+.story-new {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: var(--orange);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+}
+.story-add {
+  background: var(--card);
+  border: 2px dashed var(--stroke);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+.story-name {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 7px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.notif-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--orange);
+  border: 2px solid var(--bg);
+}
+
 .empty {
   text-align: center;
   color: var(--muted);

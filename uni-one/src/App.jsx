@@ -5,19 +5,18 @@ import StatusBar from "./components/StatusBar";
 import PushScreen from "./components/PushScreen";
 import Discover from "./components/Discover";
 import Events from "./components/Events";
-import Matches from "./components/Matches";
 import Messages from "./components/Messages";
 import ChatThread from "./components/ChatThread";
 import Profile from "./components/Profile";
 import EventDetail from "./components/EventDetail";
 import PersonDetail from "./components/PersonDetail";
 import Notifications from "./components/Notifications";
-import { ME, PEOPLE } from "./data";
+import { ME, PEOPLE, eventById } from "./data";
 
-const STORAGE_KEY = "uni-one-v3";
+const STORAGE_KEY = "uni-one-v4";
 
-// Стартовые пары (взаимные лайки) — чтобы экран «Пары» не был пустым.
-const SEED_MATCHES = PEOPLE.filter((p) => p.likesYou).map((p) => ({
+// Стартовые пары (взаимные лайки) — чтобы мэтчи были не пустыми.
+const seedPerson = (p, isNew) => ({
   id: p.id,
   name: p.name,
   age: p.age,
@@ -27,14 +26,16 @@ const SEED_MATCHES = PEOPLE.filter((p) => p.likesYou).map((p) => ({
   bio: p.bio,
   interests: p.interests,
   distance: p.distance,
-  isNew: false,
-}));
+  events: p.events,
+  isNew,
+});
+const SEED_MATCHES = PEOPLE.filter((p) => p.likesYou).map((p) => seedPerson(p, false));
 
 const TABS = [
   { id: "discover", label: "Главная", icon: "home" },
   { id: "events", label: "Мероприятия", icon: "calendar" },
-  { id: "matches", label: "Пары", icon: "heart" },
   { id: "messages", label: "Сообщения", icon: "chat" },
+  { id: "profile", label: "Профиль", icon: "user" },
 ];
 
 export default function App() {
@@ -49,7 +50,7 @@ export default function App() {
   });
 
   const [tab, setTab] = useState("discover");
-  const [stack, setStack] = useState([]); // навигационный стек push-экранов
+  const [stack, setStack] = useState([]);
   const [matchPopup, setMatchPopup] = useState(null);
   const [toast, setToast] = useState(null);
   const keyRef = useRef(0);
@@ -70,26 +71,14 @@ export default function App() {
     setStack((s) =>
       s.map((x, i) => (i === s.length - 1 ? { ...x, closing: true } : x))
     );
-  const removeByKey = (key) =>
-    setStack((s) => s.filter((x) => x.key !== key));
+  const removeByKey = (key) => setStack((s) => s.filter((x) => x.key !== key));
 
   // ===== Действия =====
   const registerMatch = (person) => {
     setState((s) => ({
       ...s,
       matches: [
-        {
-          id: person.id,
-          name: person.name,
-          age: person.age,
-          faculty: person.faculty,
-          course: person.course,
-          photo: person.photo,
-          bio: person.bio,
-          interests: person.interests,
-          distance: person.distance,
-          isNew: true,
-        },
+        seedPerson(person, true),
         ...s.matches.filter((m) => m.id !== person.id),
       ],
       stats: { ...s.stats, matches: s.stats.matches + 1 },
@@ -123,8 +112,13 @@ export default function App() {
     );
 
   const openChat = (chat) => push({ type: "chat", data: chat });
+  const openPerson = (person) => push({ type: "person", data: person });
+  const openEvent = (event) => push({ type: "event", data: event });
 
-  // ===== Рендер push-экрана по типу =====
+  const goingEvents = state.going.map(eventById).filter(Boolean);
+  const hasNew = state.matches.some((m) => m.isNew);
+
+  // ===== Рендер push-экрана =====
   const renderPush = (item) => {
     switch (item.type) {
       case "event":
@@ -136,13 +130,16 @@ export default function App() {
             onBack={pop}
           />
         );
-      case "person":
+      case "person": {
+        const matched = state.matches.some((m) => m.id === item.data.id);
         return (
           <PersonDetail
             person={item.data}
             onBack={pop}
             onLike={
-              item.data.likesYou
+              matched
+                ? undefined
+                : item.data.likesYou
                 ? (p) => {
                     pop();
                     registerMatch(p);
@@ -156,14 +153,32 @@ export default function App() {
               pop();
               openChat({ id: p.id, name: p.name, photo: p.photo });
             }}
+            onOpenEvent={openEvent}
           />
         );
+      }
       case "chat":
         return <ChatThread chat={item.data} onBack={pop} />;
       case "notifications":
-        return <Notifications onBack={pop} />;
+        return (
+          <Notifications
+            matches={state.matches}
+            onBack={pop}
+            onOpenMatch={(p) => {
+              pop();
+              openPerson(p);
+            }}
+          />
+        );
       case "profile":
-        return <Profile stats={state.stats} onBack={pop} />;
+        return (
+          <Profile
+            stats={state.stats}
+            goingEvents={goingEvents}
+            onBack={pop}
+            onOpenEvent={openEvent}
+          />
+        );
       default:
         return null;
     }
@@ -176,32 +191,33 @@ export default function App() {
 
         {tab === "discover" && (
           <Discover
-            onProfile={() => push({ type: "profile" })}
+            onProfile={() => setTab("profile")}
             onDecision={onDecision}
-            onOpen={(p) => push({ type: "person", data: p })}
+            onOpen={openPerson}
           />
         )}
         {tab === "events" && (
-          <Events
-            going={state.going}
-            onToggle={toggleEvent}
-            onOpen={(e) => push({ type: "event", data: e })}
-            onBell={() => push({ type: "notifications" })}
-          />
-        )}
-        {tab === "matches" && (
-          <Matches
-            matches={state.matches}
-            onMessage={(m) => openChat({ id: m.id, name: m.name, photo: m.photo })}
-            onOpen={(m) => push({ type: "person", data: m })}
-          />
+          <Events going={state.going} onToggle={toggleEvent} onOpen={openEvent} />
         )}
         {tab === "messages" && (
-          <Messages onOpenChat={openChat} added={state.added} onAdd={addFriend} />
+          <Messages
+            matches={state.matches}
+            onOpenMatch={openPerson}
+            onOpenChat={openChat}
+            added={state.added}
+            onAdd={addFriend}
+            onBell={() => push({ type: "notifications" })}
+            hasNew={hasNew}
+          />
         )}
-        {tab === "profile" && <Profile stats={state.stats} />}
+        {tab === "profile" && (
+          <Profile
+            stats={state.stats}
+            goingEvents={goingEvents}
+            onOpenEvent={openEvent}
+          />
+        )}
 
-        {/* Push-экраны поверх вкладок */}
         {stack.map((item) => (
           <PushScreen
             key={item.key}
@@ -249,14 +265,9 @@ export default function App() {
             <button
               key={t.id}
               className={`tab ${tab === t.id ? "active" : ""}`}
-              onClick={() => {
-                setTab(t.id);
-              }}
+              onClick={() => setTab(t.id)}
             >
-              <Icon
-                name={tab === t.id && t.id === "matches" ? "heartFill" : t.icon}
-                size={24}
-              />
+              <Icon name={t.icon} size={24} />
               {t.label}
             </button>
           ))}

@@ -1,6 +1,7 @@
 import Icon from "./Icon";
 import SmartImg from "./SmartImg";
-import { ME } from "../data";
+import MiniEvent from "./MiniEvent";
+import { ME, catIcon, catLabel } from "../data";
 
 const INTEREST_ICON = {
   Программирование: "</>",
@@ -10,7 +11,7 @@ const INTEREST_ICON = {
 };
 
 // Экран «Профиль».
-export default function Profile({ stats, onBack }) {
+export default function Profile({ stats, goingEvents = [], onBack, onOpenEvent }) {
   const s = stats || ME.stats;
   return (
     <div className="screen" style={{ paddingTop: onBack ? 0 : 50 }}>
@@ -80,6 +81,42 @@ export default function Profile({ stats, onBack }) {
           </span>
         ))}
       </div>
+
+      <div className="interests-head">
+        <span className="star">🎟️</span>
+        Форматы мероприятий
+      </div>
+      <div className="interest-chips">
+        {ME.eventInterests.map((id) => (
+          <span className="chip-orange" key={id}>
+            <span>{catIcon(id)}</span>
+            {catLabel(id)}
+          </span>
+        ))}
+      </div>
+
+      <div className="interests-head">
+        <span className="star">
+          <Icon name="calendar" size={20} />
+        </span>
+        Я иду ({goingEvents.length})
+      </div>
+      {goingEvents.length === 0 ? (
+        <div
+          className="detail-text"
+          style={{ padding: "4px 2px 8px" }}
+        >
+          Пока никуда не записаны. Загляните во вкладку «Мероприятия» 👀
+        </div>
+      ) : (
+        goingEvents.map((e) => (
+          <MiniEvent
+            key={e.id}
+            event={e}
+            onClick={onOpenEvent ? () => onOpenEvent(e) : undefined}
+          />
+        ))
+      )}
 
       <button className="btn-edit">
         <Icon name="edit" size={20} /> Редактировать профиль

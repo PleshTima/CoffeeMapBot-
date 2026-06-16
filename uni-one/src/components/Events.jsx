@@ -1,57 +1,98 @@
 import { useMemo, useState } from "react";
 import Icon from "./Icon";
 import SmartImg from "./SmartImg";
-import { EVENTS, banner, avatar } from "../data";
+import { EVENTS, EVENT_CATEGORIES, catIcon, banner, avatar } from "../data";
 
-const FILTERS = [
+const QUICK = [
   { id: "all", label: "Все" },
   { id: "today", label: "Сегодня" },
-  { id: "mgu", label: "МГУ" },
   { id: "online", label: "Онлайн" },
 ];
 
-// Экран «Мероприятия».
-export default function Events({ going, onToggle, onOpen, onBell }) {
-  const [filter, setFilter] = useState("all");
+// Экран «Мероприятия» — AI-поиск, фильтры по категориям, лента событий.
+export default function Events({ going, onToggle, onOpen }) {
+  const [query, setQuery] = useState("");
+  const [quick, setQuick] = useState("all");
+  const [cat, setCat] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
 
-  const list = useMemo(
-    () =>
-      EVENTS.filter((e) => {
-        if (filter === "today") return e.today;
-        if (filter === "online") return e.online;
-        if (filter === "mgu") return e.place.includes("МГУ");
-        return true;
-      }),
-    [filter]
-  );
+  const list = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return EVENTS.filter((e) => {
+      if (quick === "today" && !e.today) return false;
+      if (quick === "online" && !e.online) return false;
+      if (cat && e.category !== cat) return false;
+      if (q && !`${e.title} ${e.place} ${e.category}`.toLowerCase().includes(q))
+        return false;
+      return true;
+    });
+  }, [query, quick, cat]);
 
   return (
     <div className="screen">
       <div className="page-head">
         <div className="page-title">Мероприятия</div>
         <div className="head-actions">
-          <button className="icon-btn" onClick={onBell} aria-label="Уведомления">
-            <Icon name="bell" size={24} />
-          </button>
-          <button className="icon-btn" aria-label="Поиск">
-            <Icon name="search" size={24} />
+          <button
+            className={`icon-btn ${showFilters || cat ? "filter-on" : ""}`}
+            onClick={() => setShowFilters((v) => !v)}
+            aria-label="Фильтры"
+          >
+            <Icon name="sliders" size={24} />
           </button>
         </div>
       </div>
 
+      {/* AI-поиск */}
+      <div className="ai-search">
+        <span className="ai-badge">
+          <Icon name="sparkles" size={16} /> ИИ
+        </span>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Спросите ИИ: куда сходить сегодня?"
+        />
+        <Icon name="search" size={20} />
+      </div>
+
+      {/* Быстрые фильтры */}
       <div className="filters">
-        {FILTERS.map((f) => (
+        {QUICK.map((f) => (
           <button
             key={f.id}
-            className={`pill ${filter === f.id ? "active" : ""}`}
-            onClick={() => setFilter(f.id)}
+            className={`pill ${quick === f.id ? "active" : ""}`}
+            onClick={() => setQuick(f.id)}
           >
             {f.label}
           </button>
         ))}
       </div>
 
-      {list.length === 0 && <div className="empty">Тут пока пусто 🤷</div>}
+      {/* Категории (по кнопке фильтра) */}
+      {showFilters && (
+        <div className="filters cat-row">
+          <button
+            className={`pill ${!cat ? "active" : ""}`}
+            onClick={() => setCat(null)}
+          >
+            Любая тема
+          </button>
+          {EVENT_CATEGORIES.map((c) => (
+            <button
+              key={c.id}
+              className={`pill ${cat === c.id ? "active" : ""}`}
+              onClick={() => setCat(cat === c.id ? null : c.id)}
+            >
+              {c.icon} {c.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {list.length === 0 && (
+        <div className="empty">По запросу ничего не нашлось 🤖</div>
+      )}
 
       {list.map((e) => {
         const isGoing = going.includes(e.id);
@@ -78,6 +119,9 @@ export default function Events({ going, onToggle, onOpen, onBell }) {
                   )}
                 </span>
               )}
+              <span className="event-cat">
+                {catIcon(e.category)} {e.category && cap(e.category)}
+              </span>
             </div>
 
             <div className="event-body">
@@ -124,3 +168,15 @@ export default function Events({ going, onToggle, onOpen, onBell }) {
     </div>
   );
 }
+
+const LABELS = {
+  party: "Вечеринка",
+  networking: "Нетворкинг",
+  lecture: "Лекция",
+  sport: "Спорт",
+  music: "Музыка",
+  culture: "Культура",
+  it: "IT",
+  games: "Игры",
+};
+const cap = (id) => LABELS[id] || id;

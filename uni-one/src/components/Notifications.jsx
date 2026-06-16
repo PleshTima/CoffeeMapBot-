@@ -10,8 +10,20 @@ const FALLBACK = {
   friend: { icon: "users", color: "var(--green)" },
 };
 
-// Экран уведомлений (открывается push'ем по колокольчику).
-export default function Notifications({ onBack }) {
+// Экран уведомлений (открывается push'ем). Сверху — мэтчи.
+export default function Notifications({ matches = [], onBack, onOpenMatch }) {
+  // Мэтчи как уведомления
+  const matchNotifs = matches.map((m) => ({
+    id: `mn-${m.id}`,
+    type: "match",
+    text: `У вас новый мэтч с ${m.name}!`,
+    time: m.isNew ? "только что" : "недавно",
+    photo: m.photo,
+    person: m,
+  }));
+
+  const all = [...matchNotifs, ...NOTIFICATIONS];
+
   return (
     <>
       <div className="detail-head" style={{ background: "var(--elev)" }}>
@@ -22,10 +34,15 @@ export default function Notifications({ onBack }) {
       </div>
 
       <div className="detail-scroll" style={{ padding: "0 18px 30px" }}>
-        {NOTIFICATIONS.map((n) => {
+        {all.map((n) => {
           const fb = FALLBACK[n.type] || FALLBACK.message;
           return (
-            <div className="notif" key={n.id}>
+            <div
+              className="notif"
+              key={n.id}
+              onClick={n.person && onOpenMatch ? () => onOpenMatch(n.person) : undefined}
+              style={n.person && onOpenMatch ? { cursor: "pointer" } : undefined}
+            >
               {n.photo ? (
                 <SmartImg className="nic" src={n.photo} alt="" />
               ) : (
