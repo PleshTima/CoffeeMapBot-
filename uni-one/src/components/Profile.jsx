@@ -1,7 +1,9 @@
+import { useState } from "react";
 import Icon from "./Icon";
 import SmartImg from "./SmartImg";
 import MiniEvent from "./MiniEvent";
-import { ME, catIcon, catLabel, LEVELS, BADGES } from "../data";
+import Sheet from "./Sheet";
+import { ME, catIcon, catLabel, LEVELS, BADGES, ONB_INTERESTS } from "../data";
 
 function statusOf(n) {
   if (n >= 5) return "🎉 Душа компании";
@@ -10,24 +12,23 @@ function statusOf(n) {
   return "🆕 Новичок";
 }
 
-const INTEREST_ICON = {
-  Программирование: "</>",
-  Кино: "🎬",
-  Спорт: "🏋",
-  Музыка: "🎵",
-};
+const intById = (id) => ONB_INTERESTS.find((i) => i.id === id);
 
 // Экран «Профиль».
 export default function Profile({
   stats,
   goingEvents = [],
   xp = 0,
+  interests = [],
+  onToggleInterest,
   circleSummary,
   onOpenContacts,
   onBack,
   onOpenEvent,
 }) {
   const s = stats || ME.stats;
+  const [editing, setEditing] = useState(false);
+  const myInterests = interests.map(intById).filter(Boolean);
   const goingCount = goingEvents.length;
   const badgeState = { goingCount, friends: s.friends, matches: s.matches };
   let level = 1;
@@ -137,12 +138,22 @@ export default function Profile({
           <Icon name="star" size={20} />
         </span>
         Интересы
+        {onToggleInterest && (
+          <button className="edit-link" onClick={() => setEditing(true)}>
+            Изменить
+          </button>
+        )}
       </div>
       <div className="interest-chips">
-        {ME.interests.map((it) => (
-          <span className="chip-orange" key={it}>
-            <span>{INTEREST_ICON[it] || "•"}</span>
-            {it}
+        {myInterests.length === 0 && (
+          <span className="chip-orange" onClick={() => setEditing(true)}>
+            ＋ Добавить интересы
+          </span>
+        )}
+        {myInterests.map((it) => (
+          <span className="chip-orange" key={it.id}>
+            <span>{it.emoji}</span>
+            {it.label}
           </span>
         ))}
       </div>
@@ -183,9 +194,28 @@ export default function Profile({
         ))
       )}
 
-      <button className="btn-edit">
+      <button className="btn-edit" onClick={() => setEditing(true)}>
         <Icon name="edit" size={20} /> Редактировать профиль
       </button>
+
+      {editing && (
+        <Sheet title="Мои интересы" onClose={() => setEditing(false)}>
+          {ONB_INTERESTS.map((it) => {
+            const on = interests.includes(it.id);
+            return (
+              <button
+                key={it.id}
+                className={`interest-toggle ${on ? "on" : ""}`}
+                onClick={() => onToggleInterest?.(it.id)}
+              >
+                <span style={{ fontSize: 20 }}>{it.emoji}</span>
+                {it.label}
+                <span className="tg">{on ? "✓" : "＋"}</span>
+              </button>
+            );
+          })}
+        </Sheet>
+      )}
     </div>
   );
 }

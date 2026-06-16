@@ -88,9 +88,36 @@ export default function Onboarding({ onFinish }) {
                   className="btn-onb"
                   disabled={picked.length < 3}
                   style={{ opacity: picked.length < 3 ? 0.5 : 1 }}
-                  onClick={() => onFinish(picked)}
+                  onClick={() => setStep(2)}
                 >
-                  Открыть Uni-one
+                  Далее →
+                </button>
+              </div>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <div className="onb-title">Как тут всё устроено 🧭</div>
+              <div className="onb-sub">
+                Коротко о главном — а дальше разберёшься по ходу.
+              </div>
+
+              <div className="tour">
+                {TOUR.map((t) => (
+                  <div className="tour-row" key={t.title}>
+                    <div className="tour-ic">{t.icon}</div>
+                    <div>
+                      <div className="tour-title">{t.title}</div>
+                      <div className="tour-sub">{t.sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="onb-footer">
+                <button className="btn-onb" onClick={() => onFinish(picked)}>
+                  Понятно, начать! 🚀
                 </button>
               </div>
             </>
@@ -100,3 +127,11 @@ export default function Onboarding({ onFinish }) {
     </div>
   );
 }
+
+const TOUR = [
+  { icon: "🔥", title: "Свайпай знакомства", sub: "Листай влево/вправо или жми ✕ и ❤. Взаимный лайк — это мэтч." },
+  { icon: "⭐", title: "Зови на мероприятие", sub: "Звёздочка на свайпе и в чате — пригласить пойти вместе." },
+  { icon: "🎟️", title: "Мероприятия", sub: "Фильтры, AI-поиск, запись в один клик и групповой чат события." },
+  { icon: "👥", title: "Круг общения", sub: "Дели людей на друзей/приятелей/знакомых и свои папки." },
+  { icon: "🏆", title: "Достижения", sub: "Получай XP и бейджи за активность и новые знакомства." },
+];

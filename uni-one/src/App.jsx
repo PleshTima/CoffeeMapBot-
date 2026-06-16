@@ -17,7 +17,7 @@ import Contacts from "./components/Contacts";
 import EventPicker from "./components/EventPicker";
 import { ME, PEOPLE, CONTACTS, CIRCLES, eventById } from "./data";
 
-const STORAGE_KEY = "uni-one-v6";
+const STORAGE_KEY = "uni-one-v7";
 
 const seedPerson = (p, isNew) => ({
   id: p.id,
@@ -96,6 +96,14 @@ export default function App() {
   // ===== Действия =====
   const finishOnboarding = (interests) =>
     setState((s) => ({ ...s, onboarded: true, interests }));
+
+  const toggleInterest = (id) =>
+    setState((s) => ({
+      ...s,
+      interests: s.interests.includes(id)
+        ? s.interests.filter((x) => x !== id)
+        : [...s.interests, id],
+    }));
 
   const registerMatch = (person, popup = true) => {
     setState((s) =>
@@ -287,6 +295,8 @@ export default function App() {
             stats={state.stats}
             goingEvents={goingEvents}
             xp={state.xp}
+            interests={state.interests}
+            onToggleInterest={toggleInterest}
             circleSummary={circleSummary}
             onOpenContacts={openContacts}
             onBack={pop}
@@ -340,6 +350,8 @@ export default function App() {
             stats={state.stats}
             goingEvents={goingEvents}
             xp={state.xp}
+            interests={state.interests}
+            onToggleInterest={toggleInterest}
             circleSummary={circleSummary}
             onOpenContacts={openContacts}
             onOpenEvent={openEvent}
