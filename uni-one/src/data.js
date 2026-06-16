@@ -425,3 +425,71 @@ export const CONTACTS = [
   { id: "p4", name: "Саша", age: 20, faculty: "Экономфак", photo: avatar(32), circle: "acq", events: ["e11", "e13", "e4"], bio: "Запускаю стартап и бегаю по утрам.", interests: ["Стартапы", "Английский", "Бег"] },
 ];
 
+// Кто из контактов идёт на событие
+export const goingContacts = (eventId) =>
+  CONTACTS.filter((c) => c.events?.includes(eventId));
+
+// Открытые «компании» на события (пойти вместе мини-группой)
+export const EVENT_GROUPS = [
+  { id: "g1", eventId: "e14", name: "Сборная ВМК", hostId: "p1", memberIds: ["p1", "p8"], needed: 1 },
+  { id: "g2", eventId: "e1", name: "Любители Каркассона", hostId: "p5", memberIds: ["p5", "p7", "p1"], needed: 2 },
+  { id: "g3", eventId: "e6", name: "Идём тусить 🎉", hostId: "p7", memberIds: ["p7", "p5"], needed: 3 },
+  { id: "g4", eventId: "e2", name: "Хотим взять приз", hostId: "p8", memberIds: ["p8", "p1", "p3"], needed: 1 },
+  { id: "g5", eventId: "e13", name: "Утренний забег", hostId: "k1", memberIds: ["k1"], needed: 4 },
+];
+export const groupsForEvent = (eventId) =>
+  EVENT_GROUPS.filter((g) => g.eventId === eventId);
+
+// Стартовые сообщения группового чата мероприятия
+export const EVENT_THREAD = {
+  e1: [
+    { from: "Настя", photo: avatar(20), text: "Кто берёт Codenames? 🎲", time: "16:02" },
+    { from: "Максим", photo: avatar(12), text: "Я возьму! Буду к 18:00", time: "16:05" },
+    { from: "Катя", photo: avatar(44), text: "Заняла нам столик у окна 🙌", time: "16:20" },
+  ],
+  e2: [
+    { from: "Артём", photo: avatar(13), text: "Ищем фронтендера в команду!", time: "10:15" },
+    { from: "Игорь", photo: avatar(15), text: "Я по бэку, го вместе", time: "10:18" },
+  ],
+  e6: [
+    { from: "Катя", photo: avatar(44), text: "Дресс-код — яркий! 🌈", time: "20:00" },
+    { from: "Настя", photo: avatar(20), text: "Встречаемся у входа в 21:45", time: "20:30" },
+  ],
+};
+
+// Лента активности друзей
+export const ACTIVITY = [
+  { id: "a1", name: "Настя", photo: avatar(20), action: "записалась на", target: "Karaoke Night МГУ", time: "10 мин назад" },
+  { id: "a2", name: "Дима", photo: avatar(33), action: "теперь в паре 💞 на", target: "Кросс наций", time: "1 ч назад" },
+  { id: "a3", name: "Артём", photo: avatar(13), action: "собирает компанию на", target: "Хакатон «Цифровой МГУ»", time: "2 ч назад" },
+  { id: "a4", name: "Катя", photo: avatar(44), action: "идёт на", target: "Вечеринку первокурсников", time: "3 ч назад" },
+  { id: "a5", name: "Игорь", photo: avatar(15), action: "получил бейдж 🏆 за", target: "Квиз «Что? Где? Когда?»", time: "вчера" },
+];
+
+// Онбординг: интересы первокурсника
+export const ONB_INTERESTS = [
+  { id: "music", label: "Музыка", emoji: "🎶" },
+  { id: "games", label: "Настолки", emoji: "🎲" },
+  { id: "cinema", label: "Кино", emoji: "🎬" },
+  { id: "startups", label: "Стартапы", emoji: "🚀" },
+  { id: "english", label: "Английский", emoji: "🇬🇧" },
+  { id: "sport", label: "Спорт", emoji: "🏓" },
+  { id: "quiz", label: "Квизы", emoji: "🧠" },
+  { id: "science", label: "Наука", emoji: "🔬" },
+  { id: "party", label: "Вечеринки", emoji: "🎉" },
+  { id: "art", label: "Искусство", emoji: "🎨" },
+  { id: "coffee", label: "Кофе", emoji: "☕" },
+  { id: "travel", label: "Путешествия", emoji: "✈️" },
+];
+
+// Геймификация
+export const LEVELS = [0, 60, 150, 280, 450];
+export const BADGES = [
+  { id: "newbie", icon: "🌱", label: "Первый шаг", test: () => true },
+  { id: "first", icon: "🎟️", label: "Первое событие", test: (s) => s.goingCount >= 1 },
+  { id: "explorer", icon: "🧭", label: "Исследователь", test: (s) => s.goingCount >= 3 },
+  { id: "soul", icon: "🎉", label: "Душа компании", test: (s) => s.goingCount >= 5 },
+  { id: "social", icon: "🤝", label: "Свой круг", test: (s) => s.friends >= 12 },
+  { id: "popular", icon: "💘", label: "Популярный", test: (s) => s.matches >= 40 },
+];
+

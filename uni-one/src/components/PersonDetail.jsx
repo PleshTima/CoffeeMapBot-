@@ -11,8 +11,13 @@ export default function PersonDetail({
   onMessage,
   onInvite,
   onOpenEvent,
+  going = [],
 }) {
   const events = (person.events || []).map(eventById).filter(Boolean);
+  const common = (person.events || [])
+    .filter((id) => going.includes(id))
+    .map(eventById)
+    .filter(Boolean);
   return (
     <>
       <div className="detail-head on-image">
@@ -43,6 +48,13 @@ export default function PersonDetail({
         </div>
 
         <div style={{ padding: "0 20px 30px" }}>
+          {common.length > 0 && (
+            <div className="common-banner">
+              🔥 У вас {common.length}{" "}
+              {common.length === 1 ? "общее мероприятие" : "общих мероприятия"}:{" "}
+              {common.map((e) => e.title).join(", ")}
+            </div>
+          )}
           {person.distance && (
             <div className="info-row">
               <span className="ic">

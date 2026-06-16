@@ -1,6 +1,6 @@
 import Icon from "./Icon";
 import SmartImg from "./SmartImg";
-import { NOTIFICATIONS } from "../data";
+import { NOTIFICATIONS, ACTIVITY, eventById, goingContacts } from "../data";
 
 const FALLBACK = {
   like: { icon: "heartFill", color: "var(--orange)" },
@@ -10,19 +10,28 @@ const FALLBACK = {
   friend: { icon: "users", color: "var(--green)" },
 };
 
-// Экран уведомлений (открывается push'ем). Сверху — мэтчи.
-export default function Notifications({ matches = [], onBack, onOpenMatch }) {
-  // Мэтчи как уведомления
-  const matchNotifs = matches.map((m) => ({
+// Экран «Активность»: напоминания, лента друзей, мэтчи, уведомления.
+export default function Notifications({
+  matches = [],
+  going = [],
+  onBack,
+  onOpenMatch,
+  onOpenEvent,
+}) {
+  // Умные напоминания: события, куда я иду, где будут друзья
+  const reminders = going
+    .map(eventById)
+    .filter(Boolean)
+    .map((e) => ({ event: e, friends: goingContacts(e.id) }))
+    .filter((r) => r.friends.length > 0);
+
+  const matchNotifs = matches.slice(0, 6).map((m) => ({
     id: `mn-${m.id}`,
-    type: "match",
-    text: `У вас новый мэтч с ${m.name}!`,
+    text: `У вас мэтч с ${m.name}!`,
     time: m.isNew ? "только что" : "недавно",
     photo: m.photo,
     person: m,
   }));
-
-  const all = [...matchNotifs, ...NOTIFICATIONS];
 
   return (
     <>
@@ -30,19 +39,71 @@ export default function Notifications({ matches = [], onBack, onOpenMatch }) {
         <button className="back" onClick={onBack} aria-label="Назад">
           <Icon name="back" size={22} />
         </button>
-        <span className="h-title">Уведомления</span>
+        <span className="h-title">Активность</span>
       </div>
 
       <div className="detail-scroll" style={{ padding: "0 18px 30px" }}>
-        {all.map((n) => {
+        {reminders.length > 0 && (
+          <>
+            <div className="feed-head">⏰ Напоминания</div>
+            {reminders.map((r) => (
+              <button
+                className="reminder"
+                key={r.event.id}
+                onClick={() => onOpenEvent?.(r.event)}
+              >
+                <span className="rem-ic">📅</span>
+                <div className="ntext">
+                  Скоро «{r.event.title}» в {r.event.time} — там будут{" "}
+                  {r.friends.length}{" "}
+                  {r.friends.length === 1 ? "твой друг" : "твоих друзей"}
+                  <div className="rem-faces">
+                    {r.friends.slice(0, 4).map((c) => (
+                      <SmartImg key={c.id} src={c.photo} alt={c.name} />
+                    ))}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </>
+        )}
+
+        {matchNotifs.length > 0 && (
+          <>
+            <div className="feed-head">💞 Мэтчи</div>
+            {matchNotifs.map((n) => (
+              <div
+                className="notif"
+                key={n.id}
+                onClick={n.person && onOpenMatch ? () => onOpenMatch(n.person) : undefined}
+                style={n.person && onOpenMatch ? { cursor: "pointer" } : undefined}
+              >
+                <SmartImg className="nic" src={n.photo} alt="" />
+                <div className="ntext">
+                  {n.text}
+                  <div className="ntime">{n.time}</div>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+
+        <div className="feed-head">📰 Лента друзей</div>
+        {ACTIVITY.map((a) => (
+          <div className="notif" key={a.id}>
+            <SmartImg className="nic" src={a.photo} alt={a.name} />
+            <div className="ntext">
+              <b>{a.name}</b> {a.action} <b>«{a.target}»</b>
+              <div className="ntime">{a.time}</div>
+            </div>
+          </div>
+        ))}
+
+        <div className="feed-head">🔔 Уведомления</div>
+        {NOTIFICATIONS.map((n) => {
           const fb = FALLBACK[n.type] || FALLBACK.message;
           return (
-            <div
-              className="notif"
-              key={n.id}
-              onClick={n.person && onOpenMatch ? () => onOpenMatch(n.person) : undefined}
-              style={n.person && onOpenMatch ? { cursor: "pointer" } : undefined}
-            >
+            <div className="notif" key={n.id}>
               {n.photo ? (
                 <SmartImg className="nic" src={n.photo} alt="" />
               ) : (

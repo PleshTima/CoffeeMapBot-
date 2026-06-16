@@ -1,7 +1,14 @@
 import Icon from "./Icon";
 import SmartImg from "./SmartImg";
 import MiniEvent from "./MiniEvent";
-import { ME, catIcon, catLabel } from "../data";
+import { ME, catIcon, catLabel, LEVELS, BADGES } from "../data";
+
+function statusOf(n) {
+  if (n >= 5) return "🎉 Душа компании";
+  if (n >= 3) return "🧭 Исследователь";
+  if (n >= 1) return "🌱 Активист";
+  return "🆕 Новичок";
+}
 
 const INTEREST_ICON = {
   Программирование: "</>",
@@ -14,12 +21,20 @@ const INTEREST_ICON = {
 export default function Profile({
   stats,
   goingEvents = [],
+  xp = 0,
   circleSummary,
   onOpenContacts,
   onBack,
   onOpenEvent,
 }) {
   const s = stats || ME.stats;
+  const goingCount = goingEvents.length;
+  const badgeState = { goingCount, friends: s.friends, matches: s.matches };
+  let level = 1;
+  while (level < LEVELS.length && xp >= LEVELS[level]) level++;
+  const prev = LEVELS[level - 1] ?? 0;
+  const next = LEVELS[level] ?? LEVELS[LEVELS.length - 1];
+  const pct = Math.min(100, Math.round(((xp - prev) / Math.max(1, next - prev)) * 100));
   return (
     <div className="screen" style={{ paddingTop: onBack ? 0 : 50 }}>
       {onBack && (
@@ -65,6 +80,36 @@ export default function Profile({
           <div className="label">Друзья</div>
           <div className="num">{s.friends}</div>
         </div>
+      </div>
+
+      {/* Геймификация */}
+      <div className="level-card">
+        <div className="level-top">
+          <span className="level-status">{statusOf(goingCount)}</span>
+          <span className="level-xp">
+            {xp} XP · ур. {level}
+          </span>
+        </div>
+        <div className="level-bar">
+          <div style={{ width: `${pct}%` }} />
+        </div>
+        <div className="level-hint">
+          {next > xp
+            ? `До уровня ${level + 1}: ${next - xp} XP`
+            : "Максимальный уровень 🏆"}
+        </div>
+      </div>
+
+      <div className="badges-grid">
+        {BADGES.map((b) => {
+          const earned = b.test(badgeState);
+          return (
+            <div className={`badge ${earned ? "" : "locked"}`} key={b.id}>
+              <div className="b-emoji">{earned ? b.icon : "🔒"}</div>
+              <div className="b-label">{b.label}</div>
+            </div>
+          );
+        })}
       </div>
 
       {onOpenContacts && (

@@ -2008,3 +2008,407 @@ img {
   background: var(--green);
   border-color: var(--green);
 }
+
+/* ===== Онбординг ===== */
+.onb {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 0 22px 26px;
+}
+.onb::-webkit-scrollbar {
+  display: none;
+}
+.onb-hero {
+  margin: 0 -22px;
+  padding: 64px 22px 30px;
+  text-align: center;
+  background: radial-gradient(420px 200px at 50% 0, #1e2740, transparent),
+    linear-gradient(180deg, #161821, var(--bg));
+}
+.onb-hero .plane {
+  font-size: 40px;
+}
+.onb-hero h1 {
+  font-size: 34px;
+  font-weight: 800;
+  margin: 8px 0 6px;
+}
+.onb-hero h1 .dot {
+  color: var(--orange);
+}
+.onb-hero p {
+  color: var(--muted);
+  font-size: 14px;
+}
+.onb-title {
+  font-size: 23px;
+  font-weight: 800;
+  margin: 26px 0 6px;
+}
+.onb-sub {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+  margin-bottom: 18px;
+}
+.onb-week {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.onb-week-card {
+  position: relative;
+  height: 96px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--card);
+}
+.onb-week-card img,
+.onb-week-card .ph {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.onb-week-card .scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.2));
+}
+.onb-week-info {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  right: 14px;
+}
+.onb-week-when {
+  display: block;
+  font-size: 12px;
+  color: var(--pink);
+  font-weight: 700;
+}
+.onb-week-title {
+  font-size: 16px;
+  font-weight: 800;
+}
+.onb-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.onb-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1.5px solid var(--stroke);
+  border-radius: 999px;
+  padding: 11px 16px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+.onb-chip.sel {
+  border-color: var(--orange);
+  background: rgba(245, 81, 47, 0.12);
+}
+.onb-chip .ok {
+  color: var(--orange);
+  font-weight: 800;
+}
+.onb-footer {
+  margin-top: auto;
+  padding-top: 22px;
+}
+.onb-count {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.btn-onb {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--orange);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* ===== Чат мероприятия ===== */
+.ev-chat-ava {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), var(--orange));
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.ev-chat-note {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+}
+.group-msg {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.gm-ava {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--card-2);
+}
+.gm-name {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin: 0 0 3px 4px;
+  font-weight: 600;
+}
+
+/* ===== Кто идёт / группы (в деталях события) ===== */
+.detail-section.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.going-people {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.going-people::-webkit-scrollbar {
+  display: none;
+}
+.gp {
+  flex-shrink: 0;
+  width: 60px;
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--text);
+}
+.gp img,
+.gp .ph {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 5px;
+  background: var(--card-2);
+}
+.group-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.group-main {
+  flex: 1;
+  min-width: 0;
+}
+.group-name {
+  font-size: 15px;
+  font-weight: 700;
+}
+.group-avatars {
+  display: flex;
+  margin: 8px 0 6px;
+}
+.group-avatars img,
+.group-avatars .ph {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--card);
+  margin-left: -8px;
+  object-fit: cover;
+  background: var(--card-2);
+}
+.group-avatars img:first-child,
+.group-avatars .ph:first-child {
+  margin-left: 0;
+}
+.group-need {
+  font-size: 12.5px;
+  color: var(--orange);
+  font-weight: 600;
+}
+.group-join {
+  background: var(--blue);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+.group-join.joined {
+  background: var(--card-2);
+  color: var(--green);
+  border: 1px solid var(--green);
+}
+.detail-cta.two {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.detail-cta.two .btn-rsvp {
+  width: auto;
+  flex: 1;
+  margin-top: 0;
+}
+.cta-chat {
+  width: 52px;
+  height: 50px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--blue);
+  color: var(--blue);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+/* Совпадение по событиям */
+.card-events.match {
+  color: #fff;
+  background: linear-gradient(120deg, rgba(245, 81, 47, 0.9), rgba(245, 120, 60, 0.9));
+  padding: 6px 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  width: auto;
+  font-weight: 700;
+}
+.common-banner {
+  background: linear-gradient(120deg, rgba(245, 81, 47, 0.15), rgba(47, 107, 255, 0.15));
+  border: 1px solid var(--orange);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* Лента / напоминания */
+.feed-head {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--muted);
+  margin: 20px 2px 8px;
+}
+.reminder {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: rgba(47, 107, 255, 0.08);
+  border: 1px solid rgba(47, 107, 255, 0.3);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.rem-ic {
+  font-size: 22px;
+}
+.rem-faces {
+  display: flex;
+  margin-top: 8px;
+}
+.rem-faces img,
+.rem-faces .ph {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  margin-left: -8px;
+  object-fit: cover;
+}
+.rem-faces img:first-child,
+.rem-faces .ph:first-child {
+  margin-left: 0;
+}
+
+/* ===== Геймификация ===== */
+.level-card {
+  background: linear-gradient(135deg, #1d2740, #161821);
+  border: 1px solid var(--stroke);
+  border-radius: 18px;
+  padding: 16px;
+  margin-top: 16px;
+}
+.level-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.level-status {
+  font-size: 15px;
+  font-weight: 800;
+}
+.level-xp {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.level-bar {
+  height: 9px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.level-bar > div {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--orange));
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+.level-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+.badge {
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  padding: 14px 6px;
+  text-align: center;
+}
+.badge.locked {
+  opacity: 0.45;
+  filter: grayscale(0.7);
+}
+.badge .b-emoji {
+  font-size: 26px;
+}
+.badge .b-label {
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 6px;
+  line-height: 1.2;
+}

@@ -3,10 +3,12 @@ import Icon from "./components/Icon";
 import SmartImg from "./components/SmartImg";
 import StatusBar from "./components/StatusBar";
 import PushScreen from "./components/PushScreen";
+import Onboarding from "./components/Onboarding";
 import Discover from "./components/Discover";
 import Events from "./components/Events";
 import Messages from "./components/Messages";
 import ChatThread from "./components/ChatThread";
+import EventChat from "./components/EventChat";
 import Profile from "./components/Profile";
 import EventDetail from "./components/EventDetail";
 import PersonDetail from "./components/PersonDetail";
@@ -15,7 +17,7 @@ import Contacts from "./components/Contacts";
 import EventPicker from "./components/EventPicker";
 import { ME, PEOPLE, CONTACTS, CIRCLES, eventById } from "./data";
 
-const STORAGE_KEY = "uni-one-v5";
+const STORAGE_KEY = "uni-one-v6";
 
 const seedPerson = (p, isNew) => ({
   id: p.id,
@@ -48,12 +50,16 @@ export default function App() {
       /* ignore */
     }
     return {
+      onboarded: false,
+      interests: [],
       going: [],
       added: [],
       matches: SEED_MATCHES,
       stats: ME.stats,
-      circles: {}, // id -> круг (переопределение)
-      folders: [], // {id, name, memberIds}
+      circles: {},
+      folders: [],
+      xp: 60,
+      joinedGroups: [],
     };
   });
 
@@ -73,7 +79,6 @@ export default function App() {
     setTimeout(() => setToast(null), 2000);
   };
 
-  // Контакты с актуальным кругом общения
   const contacts = CONTACTS.map((c) => ({
     ...c,
     circle: state.circles[c.id] || c.circle,
@@ -89,6 +94,9 @@ export default function App() {
   const removeByKey = (key) => setStack((s) => s.filter((x) => x.key !== key));
 
   // ===== Действия =====
+  const finishOnboarding = (interests) =>
+    setState((s) => ({ ...s, onboarded: true, interests }));
+
   const registerMatch = (person, popup = true) => {
     setState((s) =>
       s.matches.some((m) => m.id === person.id)
@@ -108,13 +116,27 @@ export default function App() {
     else showToast("❤️ Лайк отправлен");
   };
 
-  const toggleEvent = (id) =>
+  const toggleEvent = (id) => {
+    const has = state.going.includes(id);
     setState((s) => ({
       ...s,
-      going: s.going.includes(id)
-        ? s.going.filter((x) => x !== id)
-        : [...s.going, id],
+      going: has ? s.going.filter((x) => x !== id) : [...s.going, id],
+      xp: has ? s.xp : s.xp + 25,
     }));
+    if (!has) showToast("🎟️ Записались! +25 XP");
+  };
+
+  const toggleGroup = (gid) => {
+    const has = state.joinedGroups.includes(gid);
+    setState((s) => ({
+      ...s,
+      joinedGroups: has
+        ? s.joinedGroups.filter((x) => x !== gid)
+        : [...s.joinedGroups, gid],
+      xp: has ? s.xp : s.xp + 10,
+    }));
+    if (!has) showToast("👥 Вы в компании! +10 XP");
+  };
 
   const addFriend = (id) =>
     setState((s) =>
@@ -127,7 +149,6 @@ export default function App() {
           }
     );
 
-  // Круги и папки
   const setCircle = (id, circle) =>
     setState((s) => ({ ...s, circles: { ...s.circles, [id]: circle } }));
   const createFolder = (name, addId) =>
@@ -154,10 +175,16 @@ export default function App() {
     }));
 
   const openChat = (chat) => push({ type: "chat", data: chat });
+  const openEventChat = (event) => push({ type: "eventchat", data: event });
   const openPerson = (person) => push({ type: "person", data: person });
   const openEvent = (event) => push({ type: "event", data: event });
+  const openContacts = () => push({ type: "contacts" });
 
-  // Звёздочка → пригласить на мероприятие
+  const createGroup = (event) => {
+    showToast(`Компания на «${event.title}» создана 🎉`);
+    openEventChat(event);
+  };
+
   const pickInviteEvent = (event) => {
     const p = invitePerson;
     setInvitePerson(null);
@@ -173,9 +200,6 @@ export default function App() {
     (c) => `${c.icon} ${contacts.filter((x) => x.circle === c.id).length}`
   ).join("   ");
 
-  const openContacts = () =>
-    push({ type: "contacts" });
-
   // ===== Рендер push-экрана =====
   const renderPush = (item) => {
     switch (item.type) {
@@ -186,13 +210,21 @@ export default function App() {
             going={state.going.includes(item.data.id)}
             onToggle={toggleEvent}
             onBack={pop}
+            onOpenChat={openEventChat}
+            onOpenPerson={openPerson}
+            onJoinGroup={toggleGroup}
+            onCreateGroup={createGroup}
+            joinedGroups={state.joinedGroups}
           />
         );
+      case "eventchat":
+        return <EventChat event={item.data} onBack={pop} />;
       case "person": {
         const matched = state.matches.some((m) => m.id === item.data.id);
         return (
           <PersonDetail
             person={item.data}
+            going={state.going}
             onBack={pop}
             onLike={
               matched
@@ -225,10 +257,15 @@ export default function App() {
         return (
           <Notifications
             matches={state.matches}
+            going={state.going}
             onBack={pop}
             onOpenMatch={(p) => {
               pop();
               openPerson(p);
+            }}
+            onOpenEvent={(e) => {
+              pop();
+              openEvent(e);
             }}
           />
         );
@@ -249,6 +286,7 @@ export default function App() {
           <Profile
             stats={state.stats}
             goingEvents={goingEvents}
+            xp={state.xp}
             circleSummary={circleSummary}
             onOpenContacts={openContacts}
             onBack={pop}
@@ -259,6 +297,10 @@ export default function App() {
         return null;
     }
   };
+
+  if (!state.onboarded) {
+    return <Onboarding onFinish={finishOnboarding} />;
+  }
 
   return (
     <div className="stage">
@@ -271,6 +313,7 @@ export default function App() {
             onDecision={onDecision}
             onOpen={openPerson}
             onInvite={setInvitePerson}
+            going={state.going}
           />
         )}
         {tab === "events" && (
@@ -296,6 +339,7 @@ export default function App() {
           <Profile
             stats={state.stats}
             goingEvents={goingEvents}
+            xp={state.xp}
             circleSummary={circleSummary}
             onOpenContacts={openContacts}
             onOpenEvent={openEvent}

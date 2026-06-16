@@ -4,7 +4,7 @@ import SmartImg from "./SmartImg";
 import { PEOPLE, eventById } from "../data";
 
 // Экран «Главная» — свайп-знакомства (drag + кнопки).
-export default function Discover({ onProfile, onDecision, onOpen, onInvite }) {
+export default function Discover({ onProfile, onDecision, onOpen, onInvite, going = [] }) {
   const [index, setIndex] = useState(0);
   const [drag, setDrag] = useState({ x: 0, y: 0, active: false });
   const [exit, setExit] = useState(null); // 'like' | 'nope'
@@ -95,10 +95,11 @@ export default function Discover({ onProfile, onDecision, onOpen, onInvite }) {
           </div>
         )}
 
-        {next && <Card person={next} />}
+        {next && <Card person={next} going={going} />}
         {person && (
           <Card
             person={person}
+            going={going}
             style={topStyle}
             onPointerDown={onDown}
             onPointerMove={onMove}
@@ -134,7 +135,8 @@ export default function Discover({ onProfile, onDecision, onOpen, onInvite }) {
   );
 }
 
-function Card({ person, style, likeOpacity = 0, nopeOpacity = 0, ...handlers }) {
+function Card({ person, going = [], style, likeOpacity = 0, nopeOpacity = 0, ...handlers }) {
+  const common = (person.events || []).filter((id) => going.includes(id));
   return (
     <div className="swipe-card" style={style} {...handlers}>
       <SmartImg src={person.photo} alt={person.name} />
@@ -163,12 +165,20 @@ function Card({ person, style, likeOpacity = 0, nopeOpacity = 0, ...handlers }) 
         <div className="card-sub">
           {person.faculty} · {person.course}
         </div>
-        {person.events?.length > 0 && (
-          <div className="card-events">
-            <span className="tk">🎟️</span>
-            Идёт на «{eventById(person.events[0])?.title}»
-            {person.events.length > 1 && ` +${person.events.length - 1}`}
+        {common.length > 0 ? (
+          <div className="card-events match">
+            <span>🔥</span>
+            Вы оба идёте на «{eventById(common[0])?.title}»
+            {common.length > 1 && ` +${common.length - 1}`}
           </div>
+        ) : (
+          person.events?.length > 0 && (
+            <div className="card-events">
+              <span className="tk">🎟️</span>
+              Идёт на «{eventById(person.events[0])?.title}»
+              {person.events.length > 1 && ` +${person.events.length - 1}`}
+            </div>
+          )
         )}
         <div className="card-chips">
           {person.interests.map((it) => (
