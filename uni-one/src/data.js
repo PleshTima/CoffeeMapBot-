@@ -10,9 +10,18 @@ const evMap = {};
 for (const p in EV) evMap[p.split("/").pop().replace(".jpg", "")] = EV[p];
 const AV_KEYS = Object.keys(avMap);
 
+// Режим картинок: "online" — реальные фото (нужен интернет),
+// иначе — локальные офлайн-картинки, вшитые в сборку.
+const ONLINE = import.meta.env.VITE_IMG_MODE === "online";
+
 export const avatar = (n) =>
-  avMap[n] || avMap[AV_KEYS[Math.abs(Number(n) || 0) % AV_KEYS.length]];
-export const banner = (seed) => evMap[seed] || Object.values(evMap)[0];
+  ONLINE
+    ? `https://i.pravatar.cc/600?img=${n}`
+    : avMap[n] || avMap[AV_KEYS[Math.abs(Number(n) || 0) % AV_KEYS.length]];
+export const banner = (seed) =>
+  ONLINE
+    ? `https://picsum.photos/seed/${seed}/900/600`
+    : evMap[seed] || Object.values(evMap)[0];
 
 
 // Категории мероприятий (фильтры)
