@@ -1,9 +1,19 @@
 // Uni-one — мок-данные прототипа (симбиоз знакомств и мероприятий).
-// Фото подгружаются с pravatar.cc / picsum.photos — при отсутствии сети
-// показывается градиентный фон-заглушка.
+// Картинки сгенерированы локально (src/assets) и вшиваются в сборку —
+// работают офлайн и мгновенно, без обращений в интернет.
 
-export const avatar = (n) => `https://i.pravatar.cc/600?img=${n}`;
-export const banner = (seed) => `https://picsum.photos/seed/${seed}/900/600`;
+const AV = import.meta.glob("./assets/av/*.jpg", { eager: true, import: "default" });
+const EV = import.meta.glob("./assets/ev/*.jpg", { eager: true, import: "default" });
+const avMap = {};
+for (const p in AV) avMap[p.split("/").pop().replace(".jpg", "")] = AV[p];
+const evMap = {};
+for (const p in EV) evMap[p.split("/").pop().replace(".jpg", "")] = EV[p];
+const AV_KEYS = Object.keys(avMap);
+
+export const avatar = (n) =>
+  avMap[n] || avMap[AV_KEYS[Math.abs(Number(n) || 0) % AV_KEYS.length]];
+export const banner = (seed) => evMap[seed] || Object.values(evMap)[0];
+
 
 // Категории мероприятий (фильтры)
 export const EVENT_CATEGORIES = [

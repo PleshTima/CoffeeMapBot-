@@ -6,5 +6,6 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 // чтобы прототип можно было открыть прямо с телефона без сервера.
 export default defineConfig({
   plugins: [react(), viteSingleFile()],
-  build: { outDir: "dist-single" },
+  // Вшиваем все ассеты (картинки) в HTML как base64 — файл полностью офлайн.
+  build: { outDir: "dist-single", assetsInlineLimit: 100000000 },
 });
