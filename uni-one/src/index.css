@@ -96,14 +96,19 @@ img {
   -webkit-overflow-scrolling: touch;
 }
 
-/* На реальном телефоне — на весь экран без рамки */
+/* На реальном телефоне — на весь экран без рамки.
+   Используем динамическую высоту (dvh), чтобы нижнее меню не «уезжало»
+   за адресную строку браузера на телефоне. */
 @media (max-width: 480px) {
   .stage {
     padding: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
   .phone {
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     max-height: none;
     border: none;
     border-radius: 0;
