@@ -29,8 +29,10 @@ jobs:
           cache: npm
           cache-dependency-path: uni-one/package-lock.json
       - run: npm ci
+      # Скачиваем реальные фото на раннере (у него есть интернет) и вшиваем
+      # их в бандл — на Pages будут настоящие лица, грузятся мгновенно.
+      - run: bash scripts/fetch_images.sh
       # Относительный base (./) — работает на под-пути GitHub Pages.
-      # Картинки берутся локальные (офлайн-режим) → грузятся мгновенно.
       - run: npm run build -- --base=./
       - uses: actions/upload-pages-artifact@v3
         with:
