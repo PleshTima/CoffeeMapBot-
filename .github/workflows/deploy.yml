@@ -1,0 +1,47 @@
+name: Deploy Uni-one to GitHub Pages
+
+on:
+  push:
+    branches: [claude/coding-on-computer-F4HJ0]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Разрешаем только один параллельный деплой
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: uni-one
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: uni-one/package-lock.json
+      - run: npm ci
+      # Относительный base (./) — работает на под-пути GitHub Pages.
+      # Картинки берутся локальные (офлайн-режим) → грузятся мгновенно.
+      - run: npm run build -- --base=./
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: uni-one/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
