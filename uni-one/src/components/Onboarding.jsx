@@ -18,7 +18,7 @@ export default function Onboarding({ onFinish }) {
           <div className="onb-hero">
             <div className="plane">✈️</div>
             <h1>
-              Uni<span className="dot">·</span>one
+              Подружимся<span className="dot">?</span>
             </h1>
             <p>Знакомства и события университета в одном месте</p>
           </div>
